@@ -87,6 +87,17 @@ struct SettingsView: View {
                         .textFieldStyle(.roundedBorder)
                 }
             }
+            Section(L("Браузерное расширение")) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L("Установить расширение")).font(.system(size: 13))
+                        Text(L("Chrome: распакованное · Firefox: .xpi"))
+                            .font(.system(size: 11)).foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Button(L("Открыть…")) { revealBundledExtensions() }
+                }
+            }
             Section {
                 Text(L("Эти настройки применяются и в браузерном расширении — оно читает их из приложения."))
                     .font(.system(size: 11)).foregroundStyle(.secondary)

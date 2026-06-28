@@ -131,6 +131,11 @@ private let table: [String: [String: String]] = [
     "Перехватывать автоматически": ["en": "Capture automatically", "zh": "自动拦截"],
     "Минимальный размер файла": ["en": "Minimum file size", "zh": "最小文件大小"],
     "Типы файлов":             ["en": "File types", "zh": "文件类型"],
+    "Браузерное расширение":   ["en": "Browser extension", "zh": "浏览器扩展"],
+    "Установить расширение":    ["en": "Install extension", "zh": "安装扩展"],
+    "Установить расширение…":   ["en": "Install extension…", "zh": "安装扩展…"],
+    "Chrome: распакованное · Firefox: .xpi": ["en": "Chrome: unpacked · Firefox: .xpi", "zh": "Chrome：已解压 · Firefox：.xpi"],
+    "Открыть…":                ["en": "Open…", "zh": "打开…"],
     "Эти настройки применяются и в браузерном расширении — оно читает их из приложения.":
         ["en": "These settings also apply to the browser extension — it reads them from the app.",
          "zh": "这些设置同样应用于浏览器扩展——它从应用读取。"],

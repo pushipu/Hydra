@@ -96,6 +96,7 @@ final class StatusBarController: NSObject, NSWindowDelegate {
         drop.state = AppSettings.shared.dropWindowVisible ? .on : .off
         menu.addItem(drop)
         add(menu, L("Настройки…"), #selector(openSettings), key: ",")
+        add(menu, L("Установить расширение…"), #selector(installExtension))
         menu.addItem(.separator())
         if queue.active > 0 {
             add(menu, L("Пауза всех"), #selector(pauseAll))
@@ -119,6 +120,7 @@ final class StatusBarController: NSObject, NSWindowDelegate {
 
     // MARK: Действия меню
 
+    @objc private func installExtension() { revealBundledExtensions() }
     @objc private func openMain() { showMainWindow() }
     @objc private func openSettings() { showSettings() }
     @objc private func toggleDrop() { AppSettings.shared.dropWindowVisible.toggle() }

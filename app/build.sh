@@ -18,6 +18,19 @@ cp .build/release/hydra-host "$APP/Contents/Resources/hydra-host"
 cp "$ROOT/app/Hydra/icon.icns" "$APP/Contents/Resources/icon.icns"
 cp "$ROOT/app/Hydra/Info.plist" "$APP/Contents/Info.plist"
 
+# Вкладываем готовые расширения внутрь app, чтобы ставить их прямо из приложения,
+# пока они не в магазинах. Кладём в Resources/Extensions до подписи bundle.
+EXT="$ROOT/extension"
+EXTDST="$APP/Contents/Resources/Extensions"
+mkdir -p "$EXTDST/chrome"
+cp -R "$EXT/src" "$EXT/icons" "$EXTDST/chrome/"
+cp "$EXT/manifest.chrome.json" "$EXTDST/chrome/manifest.json"
+FX="$(mktemp -d)"
+cp -R "$EXT/src" "$EXT/icons" "$FX/"
+cp "$EXT/manifest.firefox.json" "$FX/manifest.json"
+( cd "$FX" && zip -qr "$EXTDST/hydra-firefox.xpi" . )
+rm -rf "$FX"
+
 # Переподписываем весь bundle. SwiftPM ставит бинарю linker-signed подпись как
 # standalone-бинарю; после вкладывания в .app + Resources она перестаёт
 # соответствовать структуре → Gatekeeper: «повреждена или не содержит компонентов».

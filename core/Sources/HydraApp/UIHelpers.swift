@@ -1,9 +1,17 @@
 import SwiftUI
+import AppKit
 import DownloadCore
 
 extension Color {
     /// Системный акцент пользователя (дизайн: берётся из AccentColor).
     static let accent = Color(nsColor: .controlAccentColor)
+}
+
+/// Открыть в Finder вложенные в app расширения (Resources/Extensions: chrome/ + xpi).
+/// Пока расширения не в магазинах — ставим их прямо из приложения.
+func revealBundledExtensions() {
+    guard let dir = Bundle.main.resourceURL?.appendingPathComponent("Extensions") else { return }
+    NSWorkspace.shared.open(dir)
 }
 
 // Форматтеры и хелперы, общие для поповера и большого окна.

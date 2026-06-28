@@ -72,9 +72,11 @@ macOS 13+ · Swift · 原生 SwiftUI/AppKit
 
 1. 从 [Releases](../../releases) 下载 `Hydra.app`，拖入 `/Applications`，运行一次
    —— 它会把主机注册到所有已安装的浏览器。
-2. 安装你浏览器的扩展：
+2. 安装你浏览器的扩展 —— 两者都已内置于应用中。打开
+   **设置 → 拦截 → 安装扩展**（或菜单栏菜单 →「安装扩展…」）；访达会打开内置的
+   `chrome/` 文件夹和 `hydra-firefox.xpi`：
    - **Chrome / Brave / Edge：** `chrome://extensions` → 开发者模式 →
-     「加载已解压的扩展程序」→ 发布包中的 `chrome/` 文件夹。
+     「加载已解压的扩展程序」→ `chrome/` 文件夹。
    - **Firefox：** `about:debugging` →「临时载入附加组件」→ `hydra-firefox.xpi`。
    - **Safari：** 目前需通过 Xcode 手动安装（[docs/SAFARI_SETUP.md](docs/SAFARI_SETUP.md)）。
 3. 完成 —— cookie/会话与多线程立即生效。

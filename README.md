@@ -78,9 +78,11 @@ Browser ──(link capture + session)──▶ Extension
 
 1. Download `Hydra.app` from [Releases](../../releases), drag it into
    `/Applications`, launch once — it registers the host into every installed browser.
-2. Install the extension for your browser:
+2. Install the extension for your browser — the app bundles both. Open
+   **Settings → Capture → Install extension** (or the menu-bar menu → "Install
+   extension…"); Finder opens the bundled `chrome/` folder and `hydra-firefox.xpi`:
    - **Chrome / Brave / Edge:** `chrome://extensions` → Developer mode →
-     "Load unpacked" → the `chrome/` folder from the release.
+     "Load unpacked" → the `chrome/` folder.
    - **Firefox:** `about:debugging` → "Load Temporary Add-on" → `hydra-firefox.xpi`.
    - **Safari:** manual via Xcode for now ([docs/SAFARI_SETUP.md](docs/SAFARI_SETUP.md)).
 3. Done — cookies/session and multithreading work right away.
