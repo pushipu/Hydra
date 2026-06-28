@@ -130,6 +130,30 @@ final class DownloadCoreTests: XCTestCase {
         XCTAssertTrue(store.loadAll().isEmpty, "После завершения мета должна удаляться")
     }
 
+    func testResumableReplaysSessionPerBlock() async throws {
+        // Движок приложения (ResumableDownload): сервер требует Cookie на КАЖДОМ
+        // запросе (probe + каждый блок). Успешная байт-в-байт сборка несколькими
+        // воркерами доказывает, что сессия прокидывается в каждый поток.
+        let payload = makePayload(3 * 1024 * 1024)
+        let server = try LoopbackServer(payload: payload, advertiseRanges: true,
+                                        requireHeader: (name: "Cookie", value: "session=secret"))
+        let port = try await server.start()
+        defer { server.stop() }
+
+        let dir = try tempDir()
+        let store = DownloadStore(directory: dir.appendingPathComponent("meta"))
+        let req = DownloadRequest(
+            url: URL(string: "http://127.0.0.1:\(port)/protected.bin")!,
+            session: SessionContext(cookie: "session=secret"),
+            destinationDirectory: dir,
+            maxConnections: 4)
+
+        let download = ResumableDownload.create(request: req, store: store)
+        let url = try await download.run { _ in }
+        let got = try Data(contentsOf: url)
+        XCTAssertEqual(got, payload, "Кука должна прокинуться в каждый блочный запрос")
+    }
+
     func testSafeFilenameSanitizes() {
         // Обход каталогов / разделители пути не должны проходить.
         XCTAssertFalse(ResumableDownload.safeFilename("../../etc/passwd").contains("/"))
