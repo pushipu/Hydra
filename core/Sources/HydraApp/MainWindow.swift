@@ -183,8 +183,5 @@ struct MainWindow: View {
         NSPasteboard.general.setString(urls.joined(separator: "\n"), forType: .string)
     }
     private func deleteSelected() { for id in selection { queue.remove(id, deleteFile: !isDone(id)) }; selection = [] }
-    private func reveal(_ t: DownloadTask) {
-        guard let p = t.path else { return }
-        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: p)])
-    }
+    private func reveal(_ t: DownloadTask) { if let p = t.path { revealInFinder(p) } }
 }

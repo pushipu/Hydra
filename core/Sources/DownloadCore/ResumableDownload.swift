@@ -109,8 +109,7 @@ public final class ResumableDownload: @unchecked Sendable {
     /// загрузок, у которых ещё нет живого прогресса). nil — если не блочная.
     public func staticProgress() -> DownloadProgress? {
         guard !meta.doneBlocks.isEmpty else { return nil }
-        var blocks = [BlockState](repeating: .empty, count: meta.doneBlocks.count)
-        for i in meta.doneBlocks.indices where meta.doneBlocks[i] { blocks[i] = .done }
+        let blocks = meta.doneBlocks.map { $0 ? BlockState.done : .empty }
         return DownloadProgress(totalBytes: meta.total, receivedBytes: meta.completedBytes,
                                 connections: 0, bytesPerSecond: 0, blocks: blocks, segments: [])
     }
@@ -142,7 +141,6 @@ public final class ResumableDownload: @unchecked Sendable {
             && meta.connections > 1
 
         if meta.total == 0 {
-            // первичная инициализация
             refineFilenameFresh(info: info)   // подтянуть имя из Content-Disposition/редиректа
             // Хватит ли места на диске (проверяем до старта, на свежей загрузке).
             if let total = info.contentLength, total > 0, !Self.hasFreeSpace(meta.destinationDir, need: total) {
@@ -153,8 +151,7 @@ public final class ResumableDownload: @unchecked Sendable {
             }
             let partPath = setupBlocks(total: total, info: info)
             try Downloader.preallocate(at: URL(fileURLWithPath: partPath), size: total)
-        } else {
-            // резюм: ресурс не должен был измениться
+        } else {   // резюм: проверяем, что ресурс не изменился
             if let e = meta.etag, let cur = info.etag, e != cur { throw DownloadError.rangeNotSatisfiable }
             if let len = info.contentLength, len != meta.total { throw DownloadError.rangeNotSatisfiable }
             if !info.acceptsRanges { throw DownloadError.rangeNotSatisfiable }
@@ -255,7 +252,7 @@ public final class ResumableDownload: @unchecked Sendable {
         segments[worker] = nil
         let m = meta
         lock.unlock()
-        store.save(m)       // персист битовой карты — переживает перезапуск
+        store.save(m)
     }
 
     private func releaseBlock(_ i: Int, worker: Int) {
@@ -278,8 +275,7 @@ public final class ResumableDownload: @unchecked Sendable {
     }
 
     private func snapshotLocked(_ now: Date) -> DownloadProgress {
-        var blocks = [BlockState](repeating: .empty, count: meta.doneBlocks.count)
-        for i in meta.doneBlocks.indices { if meta.doneBlocks[i] { blocks[i] = .done } }
+        var blocks = meta.doneBlocks.map { $0 ? BlockState.done : .empty }
         for i in inFlight { blocks[i] = .active }
         let elapsed = max(0.001, now.timeIntervalSince(runStart))
         let bps = Double(received - runStartReceived) / elapsed

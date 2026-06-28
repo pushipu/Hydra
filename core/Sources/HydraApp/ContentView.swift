@@ -227,7 +227,7 @@ private struct DownloadRow: View {
                         Text("\(blocks.filter { $0 == .done }.count) / \(blocks.count) \(L("блоков")) · \(p.connections) \(L("потоков"))")
                             .foregroundStyle(.tertiary)
                         Spacer()
-                        if task.state == .running, let eta = etaText(p) {
+                        if task.state == .running, let eta = fmtRemaining(p) {
                             Text("\(L("осталось")) \(eta)").foregroundStyle(.tertiary).monospacedDigit()
                         }
                     }
@@ -238,7 +238,7 @@ private struct DownloadRow: View {
                     HStack {
                         Text(L("Один поток")).foregroundStyle(.tertiary)
                         Spacer()
-                        if task.state == .running, let eta = etaText(p) {
+                        if task.state == .running, let eta = fmtRemaining(p) {
                             Text("\(L("осталось")) \(eta)").foregroundStyle(.tertiary).monospacedDigit()
                         }
                     }
@@ -300,23 +300,13 @@ private struct DownloadRow: View {
                 .foregroundStyle(Color(nsColor: .systemGreen))
                 .frame(width: 24, height: 24)
                 .background(Circle().fill(Color(nsColor: .systemGreen).opacity(0.16)))
-            if hovering { SmallButton("Finder") { reveal() } }
+            if hovering, let p = task.path { SmallButton("Finder") { revealInFinder(p) } }
         case .failed, .cancelled:
             if hovering { SmallButton(L("Повторить")) { queue.retry(task.id) } }
         }
         if hovering && task.state != .running && task.state != .paused {
             CircleButton(symbol: "xmark") { withAnimation { queue.remove(task.id, deleteFile: task.state != .done) } }
         }
-    }
-
-    private func etaText(_ p: DownloadProgress) -> String? {
-        guard let total = p.totalBytes, p.bytesPerSecond > 0 else { return nil }
-        return fmtETA(Double(total - p.receivedBytes) / p.bytesPerSecond)
-    }
-
-    private func reveal() {
-        guard let path = task.path else { return }
-        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
     }
 
     private func fileSize(_ path: String) -> Int64 {
@@ -498,10 +488,7 @@ private struct DownloadDetail: View {
         .padding(.vertical, 8)
     }
 
-    private var etaText: String {
-        guard let p, let total = p.totalBytes, p.bytesPerSecond > 0 else { return "—" }
-        return fmtETA(Double(total - p.receivedBytes) / p.bytesPerSecond)
-    }
+    private var etaText: String { p.flatMap(fmtRemaining) ?? "—" }
 
     private var avgSpeed: Double? {
         guard !spark.isEmpty else { return nil }
@@ -519,7 +506,7 @@ private struct DownloadDetail: View {
                 detailButton(L("Возобновить"), filled: true) { queue.resume(task.id) }
                 detailButton(L("Отмена")) { queue.remove(task.id, deleteFile: true); onBack() }
             case .done:
-                detailButton(L("Показать в Finder"), filled: true) { reveal() }
+                detailButton(L("Показать в Finder"), filled: true) { if let p = task.path { revealInFinder(p) } }
             case .failed, .cancelled:
                 detailButton(L("Повторить"), filled: true) { queue.retry(task.id) }
                 detailButton(L("Удалить")) { queue.remove(task.id, deleteFile: true); onBack() }
@@ -541,11 +528,6 @@ private struct DownloadDetail: View {
                 .background(RoundedRectangle(cornerRadius: 8).fill(filled ? Color.accent : Color.primary.opacity(0.06)))
         }
         .buttonStyle(PressableStyle())
-    }
-
-    private func reveal() {
-        guard let path = task.path else { return }
-        NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
     }
 }
 

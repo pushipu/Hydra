@@ -81,6 +81,17 @@ func fileBadge(_ name: String) -> String {
 
 func host(_ url: URL) -> String { url.host ?? url.absoluteString }
 
+/// Показать файл в Finder.
+func revealInFinder(_ path: String) {
+    NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
+}
+
+/// Остаток времени по прогрессу (nil, если размер/скорость неизвестны).
+func fmtRemaining(_ p: DownloadProgress) -> String? {
+    guard let total = p.totalBytes, p.bytesPerSecond > 0 else { return nil }
+    return fmtETA(Double(total - p.receivedBytes) / p.bytesPerSecond)
+}
+
 /// Текст статуса + цвет-тон для строки (общий для окна и поповера).
 func statusInfo(_ t: DownloadTask) -> (text: String, tone: Color) {
     func pct(_ p: DownloadProgress?) -> String { p?.fractionCompleted.map { " · \(Int($0 * 100))%" } ?? "" }

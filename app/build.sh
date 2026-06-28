@@ -28,19 +28,14 @@ BUILD="${HYDRA_BUILD:-1}"
 # пока они не в магазинах. Кладём в Resources/Extensions до подписи bundle.
 EXT="$ROOT/extension"
 EXTDST="$APP/Contents/Resources/Extensions"
-set_manifest_version() { # <file> <version>
-  python3 -c "import json,sys
-p=sys.argv[1]; d=json.load(open(p)); d['version']=sys.argv[2]
-json.dump(d, open(p,'w'), indent=2, ensure_ascii=False)" "$1" "$2"
-}
 mkdir -p "$EXTDST/chrome"
 cp -R "$EXT/src" "$EXT/icons" "$EXTDST/chrome/"
 cp "$EXT/manifest.chrome.json" "$EXTDST/chrome/manifest.json"
-set_manifest_version "$EXTDST/chrome/manifest.json" "$VERSION"
+python3 "$ROOT/scripts/setver.py" "$EXTDST/chrome/manifest.json" "$VERSION"
 FX="$(mktemp -d)"
 cp -R "$EXT/src" "$EXT/icons" "$FX/"
 cp "$EXT/manifest.firefox.json" "$FX/manifest.json"
-set_manifest_version "$FX/manifest.json" "$VERSION"
+python3 "$ROOT/scripts/setver.py" "$FX/manifest.json" "$VERSION"
 ( cd "$FX" && zip -qr "$EXTDST/hydra-firefox.xpi" . )
 rm -rf "$FX"
 

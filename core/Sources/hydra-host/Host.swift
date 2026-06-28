@@ -82,13 +82,7 @@ struct Host {
     }
 
     /// Пинг попапа: сообщаем app о себе («hello») и заодно проверяем, что он жив.
-    private static func sayHello() -> Bool {
-        guard let sock = connectSocket() else { return false }
-        defer { close(sock) }
-        guard let data = try? JSONSerialization.data(withJSONObject: ["type": "hello"]) else { return false }
-        var payload = data; payload.append(10)
-        return payload.withUnsafeBytes { Darwin.write(sock, $0.baseAddress!, payload.count) } == payload.count
-    }
+    private static func sayHello() -> Bool { delegate(["type": "hello"]) }
 
     private static func delegate(_ msg: [String: Any]) -> Bool {
         guard let sock = connectSocket() else { return false }

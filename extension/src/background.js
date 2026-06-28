@@ -40,21 +40,12 @@ async function sendToHydra({ url, filename, referrer }) {
     cookie: session.cookie,
     userAgent: session.userAgent,
     referer: session.referer,
-    headers: {},
     connections: settings.connections || 8,
   };
   try {
     api.runtime.sendNativeMessage(HOST_NAME, message);
   } catch (e) {
     console.error('failed to reach hydra-host:', e);
-    try {
-      api.notifications?.create({
-        type: 'basic',
-        iconUrl: 'icons/icon128.png',
-        title: 'Hydra',
-        message: 'Hydra: не удалось связаться с менеджером. Установлен ли host?',
-      });
-    } catch {}
   }
 }
 

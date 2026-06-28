@@ -41,7 +41,7 @@ final class ChunkDownloader: NSObject, URLSessionDataDelegate, @unchecked Sendab
                 task.resume()
             }
         } onCancel: {
-            task.cancel()   // → didCompleteWithError(cancelled) → finish(.failure)
+            task.cancel()
         }
     }
 
@@ -66,8 +66,6 @@ final class ChunkDownloader: NSObject, URLSessionDataDelegate, @unchecked Sendab
             return .cancel
         }
         guard expectedStatus.contains(http.statusCode) else {
-            // finish() сам синхронизирован; continuation резолвится здесь,
-            // didCompleteWithError из-за .cancel станет no-op.
             finish(.failure(DownloadError.httpStatus(http.statusCode)))
             return .cancel
         }
