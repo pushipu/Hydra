@@ -14,7 +14,7 @@ struct Host {
             let type = message["type"] as? String
             // Пинг от popup расширения: жив ли Hydra.app (просто пробуем подключиться).
             if type == "ping" {
-                io.send(["type": "status", "connected": Self.appIsRunning()])
+                io.send(["type": "status", "connected": Self.sayHello()])
                 continue
             }
             // Снимок активных/паузных загрузок для попапа (читаем меты с диска —
@@ -81,10 +81,13 @@ struct Host {
         return sock
     }
 
-    /// Жив ли Hydra.app: успешный connect() к его сокету = app слушает.
-    private static func appIsRunning() -> Bool {
+    /// Пинг попапа: сообщаем app о себе («hello») и заодно проверяем, что он жив.
+    private static func sayHello() -> Bool {
         guard let sock = connectSocket() else { return false }
-        close(sock); return true
+        defer { close(sock) }
+        guard let data = try? JSONSerialization.data(withJSONObject: ["type": "hello"]) else { return false }
+        var payload = data; payload.append(10)
+        return payload.withUnsafeBytes { Darwin.write(sock, $0.baseAddress!, payload.count) } == payload.count
     }
 
     private static func delegate(_ msg: [String: Any]) -> Bool {

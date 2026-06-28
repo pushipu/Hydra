@@ -131,6 +131,19 @@ private let table: [String: [String: String]] = [
     "Перехватывать автоматически": ["en": "Capture automatically", "zh": "自动拦截"],
     "Минимальный размер файла": ["en": "Minimum file size", "zh": "最小文件大小"],
     "Типы файлов":             ["en": "File types", "zh": "文件类型"],
+    // — Онбординг (экран 07) —
+    "Добро пожаловать в Hydra": ["en": "Welcome to Hydra", "zh": "欢迎使用 Hydra"],
+    "Многопоточная качалка с авторизованной сессией из браузера.":
+        ["en": "A multithreaded downloader with your authenticated browser session.",
+         "zh": "带浏览器登录会话的多线程下载器。"],
+    "Поставьте расширение браузера": ["en": "Install the browser extension", "zh": "安装浏览器扩展"],
+    "Перехватывает ссылки и передаёт сессию в Hydra.":
+        ["en": "Captures links and passes the session to Hydra.", "zh": "拦截链接并把会话传给 Hydra。"],
+    "связано":                 ["en": "paired", "zh": "已连接"],
+    "ожидание…":               ["en": "waiting…", "zh": "等待中…"],
+    "Разрешения":              ["en": "Permissions", "zh": "权限"],
+    "Уведомления о загрузках и ошибках": ["en": "Notifications for downloads and errors", "zh": "下载与错误通知"],
+    "Начать":                  ["en": "Get started", "zh": "开始使用"],
     "Браузерное расширение":   ["en": "Browser extension", "zh": "浏览器扩展"],
     "Установить расширение":    ["en": "Install extension", "zh": "安装扩展"],
     "Установить расширение…":   ["en": "Install extension…", "zh": "安装扩展…"],

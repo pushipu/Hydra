@@ -1,6 +1,14 @@
 import Foundation
 import DownloadCore
 
+/// Факт связки с браузерным расширением: хост шлёт «hello» при пинге из попапа.
+/// Используется онбордингом/настройками для живой проверки «расширение связано».
+@MainActor final class Pairing: ObservableObject {
+    static let shared = Pairing()
+    @Published var seenExtension = false
+    func markSeen() { seenExtension = true }
+}
+
 // ponytail: BSD sockets проще Network framework для Unix domain socket
 class IPCServer {
     private let socketPath = "/tmp/hydra.sock"
@@ -47,10 +55,10 @@ class IPCServer {
             while let newline = buffer.firstIndex(of: 10) {
                 let line = buffer.prefix(upTo: newline)
                 buffer = buffer.suffix(from: buffer.index(after: newline))
-                // Пинг от расширения — это просто факт подключения к сокету (host
-                // проверяет connect()), отвечать не нужно. Обрабатываем только download.
-                guard let msg = try? JSONSerialization.jsonObject(with: line) as? [String: Any],
-                      msg["type"] as? String == "download",
+                guard let msg = try? JSONSerialization.jsonObject(with: line) as? [String: Any] else { continue }
+                // «hello» — пинг попапа расширения через host: фиксируем связку.
+                if msg["type"] as? String == "hello" { await MainActor.run { Pairing.shared.markSeen() }; continue }
+                guard msg["type"] as? String == "download",
                       let urlString = msg["url"] as? String, let url = URL(string: urlString) else { continue }
                 let session = SessionContext(
                     cookie: msg["cookie"] as? String,

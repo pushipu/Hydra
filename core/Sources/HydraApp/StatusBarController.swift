@@ -11,6 +11,7 @@ final class StatusBarController: NSObject, NSWindowDelegate {
     private let queue: DownloadQueue
     private var mainWindow: NSWindow?
     private var settingsWindow: NSWindow?
+    private var onboardingWindow: NSWindow?
     private var dropWindow: NSPanel?
     private var cancellable: AnyCancellable?
     private var dropCancellable: AnyCancellable?
@@ -51,6 +52,25 @@ final class StatusBarController: NSObject, NSWindowDelegate {
         pinCancellable = AppSettings.shared.$popoverPinned.sink { [weak self] pinned in
             self?.popover.behavior = pinned ? .applicationDefined : .transient
         }
+        // Первый запуск (не в демо) — показываем онбординг.
+        if !UserDefaults.standard.bool(forKey: "onboardingDone"),
+           !UserDefaults.standard.bool(forKey: "demoMode") {
+            DispatchQueue.main.async { [weak self] in self?.showOnboarding() }
+        }
+    }
+
+    private func showOnboarding() {
+        if onboardingWindow == nil {
+            let w = NSWindow(contentViewController: NSHostingController(
+                rootView: OnboardingView(onDone: { [weak self] in self?.onboardingWindow?.close() })))
+            w.title = "Hydra"
+            w.styleMask = [.titled, .closable]
+            w.isReleasedWhenClosed = false
+            w.delegate = self
+            w.center()
+            onboardingWindow = w
+        }
+        present(onboardingWindow)
     }
 
     // MARK: Иконка
