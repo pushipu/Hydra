@@ -21,6 +21,8 @@ extension/manifest.json
 dist/
 app/Hydra.app/
 
-# Local editor/agent config
-.claude/settings.local.json
+# Local editor / tooling config
 .swiftpm/
+.vscode/
+.idea/
+.claude/
