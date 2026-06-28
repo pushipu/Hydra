@@ -6,6 +6,12 @@
 
 **English** · [Русский](README.ru.md) · [中文](README.zh.md)
 
+[![Release](https://img.shields.io/github/v/release/pushipu/Hydra?sort=semver)](https://github.com/pushipu/Hydra/releases)
+[![Downloads](https://img.shields.io/github/downloads/pushipu/Hydra/total)](https://github.com/pushipu/Hydra/releases)
+[![License: MIT](https://img.shields.io/github/license/pushipu/Hydra)](LICENSE)
+![Platform: macOS 13+](https://img.shields.io/badge/platform-macOS%2013%2B-blue)
+[![Stars](https://img.shields.io/github/stars/pushipu/Hydra?style=social)](https://github.com/pushipu/Hydra/stargazers)
+
 **Multithreaded download manager for macOS with browser-session passthrough.**
 
 Downloads files in several parallel streams (HTTP Range) and replays your
@@ -39,6 +45,20 @@ macOS 13+ · Swift · native SwiftUI/AppKit
 - **Update check** — notifies on launch when a newer release is on GitHub; manual check in Settings/menu.
 - **Native macOS look** — system accent, materials/vibrancy, SF, dark/light theme.
 - **Localized** — English, Russian, Chinese; switch in Settings → System → Language.
+
+## Why Hydra?
+
+A free, open-source download accelerator for macOS — a native alternative to IDM,
+Folx and JDownloader, without the price tag or the Java runtime.
+
+| | Browser built-in | Typical download managers | **Hydra** |
+|---|:---:|:---:|:---:|
+| Multithreaded (HTTP Range) | ❌ | ✅ | ✅ |
+| Replays your logged-in session | ❌ | ⚠️ partial | ✅ cookies + UA + referer |
+| Downloads files behind a login | ❌ | ⚠️ | ✅ |
+| Pause / resume across restart | ⚠️ | ✅ | ✅ block-level |
+| Native menu-bar app | — | varies | ✅ SwiftUI / AppKit |
+| Open source, free | — | usually paid | ✅ MIT |
 
 ## Screenshots
 
@@ -143,6 +163,29 @@ A thin layer: captures the session, intercepts links, shows the pairing status
 with the app and the list of current downloads. The logic and UI live in the app.
 Capture settings (auto-capture, min size, file types, threads) have a single
 source of truth in the app; the extension reads them through the host.
+
+## FAQ
+
+**Is Hydra a free IDM / Folx alternative for macOS?**
+Yes — open-source (MIT), multithreaded, with browser-session passthrough, native to macOS.
+
+**How does it download files that are behind a login?**
+The browser extension captures your `Cookie`, `User-Agent` and `Referer` for the link
+and replays them on every parallel connection, so the server sees your authenticated session.
+
+**Which browsers are supported?**
+Chrome, Brave, Edge and Firefox via extensions. Safari needs a manual setup for now.
+
+**Is it safe? What does the extension read?**
+It reads cookies only to pass your existing session to the downloader. Nothing is sent
+anywhere except to the file's own server — there is no telemetry.
+
+**Does pause/resume survive a restart?**
+Yes. The done-blocks bitmap is persisted to disk, so you can quit mid-download and continue later.
+
+**macOS says the app "cannot be opened" — why?**
+It's ad-hoc signed and not notarized yet. Right-click the app → **Open**, or install via
+Homebrew with `--no-quarantine`.
 
 ## License
 

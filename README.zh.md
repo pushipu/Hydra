@@ -6,6 +6,12 @@
 
 [English](README.md) · [Русский](README.ru.md) · **中文**
 
+[![Release](https://img.shields.io/github/v/release/pushipu/Hydra?sort=semver)](https://github.com/pushipu/Hydra/releases)
+[![Downloads](https://img.shields.io/github/downloads/pushipu/Hydra/total)](https://github.com/pushipu/Hydra/releases)
+[![License: MIT](https://img.shields.io/github/license/pushipu/Hydra)](LICENSE)
+![Platform: macOS 13+](https://img.shields.io/badge/platform-macOS%2013%2B-blue)
+[![Stars](https://img.shields.io/github/stars/pushipu/Hydra?style=social)](https://github.com/pushipu/Hydra/stargazers)
+
 **支持浏览器会话透传的 macOS 多线程下载管理器。**
 
 以多条并行流（HTTP Range）下载文件，并在每一条流中重放你已登录的浏览器会话——
@@ -35,6 +41,20 @@ macOS 13+ · Swift · 原生 SwiftUI/AppKit
 - **更新检查** — 启动时若 GitHub 上有更新版本会提示；可在设置/菜单手动检查。
 - **原生 macOS 外观** — 系统强调色、材质/通透感、SF 字体、深色/浅色主题。
 - **多语言** — 英文、俄文、中文；在 设置 → 系统 → 语言 中切换。
+
+## 为什么选 Hydra
+
+面向 macOS 的免费开源下载加速器 —— IDM、Folx、JDownloader 的原生替代品，
+无需付费，也不依赖 Java。
+
+| | 浏览器自带 | 常见下载管理器 | **Hydra** |
+|---|:---:|:---:|:---:|
+| 多线程（HTTP Range） | ❌ | ✅ | ✅ |
+| 透传已登录会话 | ❌ | ⚠️ 部分 | ✅ cookies + UA + referer |
+| 下载登录后才可见的文件 | ❌ | ⚠️ | ✅ |
+| 重启后暂停/恢复 | ⚠️ | ✅ | ✅ 按块 |
+| 原生菜单栏应用 | — | 不一 | ✅ SwiftUI / AppKit |
+| 开源、免费 | — | 通常收费 | ✅ MIT |
 
 ## 截图
 
@@ -134,6 +154,27 @@ docs/             ARCHITECTURE.md、SAFARI_SETUP.md、USAGE.md、screenshots/
 一个轻量层：抓取会话、拦截链接、显示与应用的配对状态和当前下载列表。逻辑与界面
 都在应用中。拦截设置（自动拦截、最小大小、文件类型、线程数）以应用为唯一来源，
 扩展通过主机读取。
+
+## 常见问题
+
+**Hydra 是 macOS 上免费的 IDM / Folx 替代品吗？**
+是 —— 开源（MIT）、多线程、透传浏览器会话、原生应用。
+
+**它如何下载登录后才可见的文件？**
+扩展会抓取该链接的 `Cookie`、`User-Agent`、`Referer` 并在每条并行连接中重放，
+服务器即可识别你的登录会话。
+
+**支持哪些浏览器？**
+通过扩展支持 Chrome、Brave、Edge 和 Firefox。Safari 目前需手动设置。
+
+**安全吗？扩展读取什么？**
+仅读取 cookie 以把你已有的会话传给下载器。除文件所在服务器外不向任何地方发送数据，无遥测。
+
+**暂停/恢复能在重启后保留吗？**
+能。已完成块的位图写入磁盘，可退出后稍后继续。
+
+**macOS 提示应用「无法打开」怎么办？**
+应用为 ad-hoc 签名且尚未公证。右键应用 → **打开**，或用 Homebrew 加 `--no-quarantine` 安装。
 
 ## 许可证
 

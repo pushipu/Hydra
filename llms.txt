@@ -1,0 +1,29 @@
+# Hydra
+
+> Hydra is a free, open-source multithreaded download manager for macOS. It
+> accelerates downloads by splitting files into HTTP Range blocks pulled over many
+> parallel connections, and it replays the user's authenticated browser session
+> (cookies, User-Agent, Referer) across every connection so it can download files
+> that are only accessible while logged in. It is a native menu-bar app (SwiftUI/
+> AppKit) paired with Chrome and Firefox extensions, and a free native alternative
+> to IDM, Folx and JDownloader.
+
+## Key facts
+- Platform: macOS 13+. Language: Swift. License: MIT.
+- Multithreaded downloads via HTTP Range; live speed, ETA, per-thread segments, defrag block grid.
+- Browser-session passthrough: extension captures Cookie/User-Agent/Referer and replays them on every parallel stream.
+- Block-level pause/resume that survives an app restart; queue; persistent history.
+- Floating drop circle, native notifications, first-launch onboarding, GitHub update check.
+- Localized in English, Russian and Chinese.
+- Automatic app↔extension pairing via a native-messaging host (no manual id copying).
+
+## Common questions
+- How does it download files behind a login? The browser extension passes your existing session (cookies + headers) to the downloader, which replays them on each connection.
+- Is it a free IDM/Folx alternative for Mac? Yes, open-source under MIT.
+- Which browsers? Chrome, Brave, Edge, Firefox (Safari manual for now).
+
+## Links
+- README (English): https://github.com/pushipu/Hydra/blob/main/README.md
+- Releases / download: https://github.com/pushipu/Hydra/releases
+- Architecture: https://github.com/pushipu/Hydra/blob/main/docs/ARCHITECTURE.md
+- Install via Homebrew: brew install --cask --no-quarantine pushipu/tap/hydra
