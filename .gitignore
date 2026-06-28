@@ -1,0 +1,25 @@
+# Swift / SwiftPM
+core/.build/
+.build/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+
+# macOS
+.DS_Store
+
+# Extension build artifacts
+extension/manifest.json
+*.zip
+*.xpi
+
+# Misc
+*.hydrapart
+*.hydrameta
+
+# Build output (+ chrome private key)
+dist/
+
+# Local editor/agent config
+.claude/settings.local.json
+.swiftpm/

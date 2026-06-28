@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Hydra Download Manager",
+  "version": "0.1.0",
+  "description": "Многопоточная загрузка через нативный менеджер Hydra с учётом сессии.",
+  "permissions": [
+    "downloads",
+    "contextMenus",
+    "cookies",
+    "nativeMessaging",
+    "storage"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "scripts": ["src/rules.js", "src/background.js"]
+  },
+  "options_ui": {
+    "page": "src/options.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "Hydra",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "hydra@local.dev",
+      "strict_min_version": "115.0"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

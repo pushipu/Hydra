@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Hydra — настройки</title>
+  <style>
+    body { font: 14px -apple-system, system-ui, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; color: #1d1d1f; }
+    h1 { font-size: 20px; }
+    fieldset { border: 1px solid #ddd; border-radius: 8px; margin: 16px 0; padding: 12px 16px; }
+    legend { font-weight: 600; padding: 0 6px; }
+    label { display: block; margin: 8px 0; }
+    input[type="number"], select, textarea { font: inherit; padding: 4px 6px; border: 1px solid #ccc; border-radius: 6px; }
+    textarea { width: 100%; height: 64px; box-sizing: border-box; }
+    .row { display: flex; align-items: center; gap: 8px; }
+    button { font: inherit; padding: 8px 16px; border-radius: 8px; border: none; background: #0071e3; color: #fff; cursor: pointer; }
+    #status { margin-left: 12px; color: #34a853; }
+    small { color: #6e6e73; }
+  </style>
+</head>
+<body>
+  <h1>Hydra Download Manager</h1>
+
+  <fieldset>
+    <legend>Основное</legend>
+    <label class="row"><input type="checkbox" id="enabled" /> Авто-перехват загрузок</label>
+    <label class="row"><input type="checkbox" id="contextMenuEnabled" /> Пункт «Download with Hydra» в контекстном меню</label>
+    <label class="row">Потоков на файл: <input type="number" id="connections" min="1" max="32" /></label>
+    <label class="row">Не перехватывать файлы мельче (МБ): <input type="number" id="minSizeMB" min="0" /> <small>0 = любые</small></label>
+  </fieldset>
+
+  <fieldset>
+    <legend>Домены</legend>
+    <label class="row">Режим:
+      <select id="domainMode">
+        <option value="all">Все домены</option>
+        <option value="whitelist">Только из списка (whitelist)</option>
+        <option value="blacklist">Все, кроме списка (blacklist)</option>
+      </select>
+    </label>
+    <small>По одному домену на строку (например <code>example.com</code> — включает поддомены).</small>
+    <textarea id="domainList" placeholder="example.com&#10;cdn.site.org"></textarea>
+  </fieldset>
+
+  <fieldset>
+    <legend>Типы файлов</legend>
+    <label class="row">Режим:
+      <select id="extensionMode">
+        <option value="all">Все типы</option>
+        <option value="only">Только перечисленные</option>
+        <option value="except">Все, кроме перечисленных</option>
+      </select>
+    </label>
+    <small>Расширения без точки, через запятую или пробел.</small>
+    <textarea id="extensionList" placeholder="zip dmg iso mp4 mkv pdf"></textarea>
+  </fieldset>
+
+  <div class="row">
+    <button id="save">Сохранить</button>
+    <span id="status"></span>
+  </div>
+
+  <script src="rules.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>

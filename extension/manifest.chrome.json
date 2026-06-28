@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Hydra Download Manager",
+  "version": "0.1.0",
+  "description": "Многопоточная загрузка через нативный менеджер Hydra с учётом сессии.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApdVG9ODF8IYWix7KgddJ9H0j3NvEC37iw5t5h3pLsUwTvpSLn3B2tRq23EyykqjyN6CEqtnQoIsSsU21itbfqPs6mCO5HqnPPa6ZUa+4gVIO+/h6tFLcAEhEqFRLzBBYJ9RR7NBnmKC2mkwwrjYmd7ZVKROtSlTs1PP8ezWHlYmvG56Owpz5cZWEc+rlo+42sJSZU7nzPt9Cpw4oiT0Pbn4R+Cqh9cflN4hdMjKCHDi/n4+adnJxzbBG3QbGncw1tgWZ1fKHACFDx8+44YlWTtH+dxzIjO9lQeex7TN1cs2/3G2MUBR5dXT+lJqfJWTB713hSQ2F9T+6u6tyTK0foQIDAQAB",
+  "permissions": [
+    "downloads",
+    "contextMenus",
+    "cookies",
+    "nativeMessaging",
+    "storage"
+  ],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "options_ui": {
+    "page": "src/options.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_popup": "src/popup.html",
+    "default_title": "Hydra",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

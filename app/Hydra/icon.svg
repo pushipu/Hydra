@@ -1,0 +1,9 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Плоский знак Hydra: сплошная плитка + стрелка скачивания (как в строке меню и лого). -->
+  <rect width="1024" height="1024" rx="229" fill="#0A84FF"/>
+  <g fill="#FFFFFF">
+    <rect x="467" y="300" width="90" height="330" rx="45"/>
+    <path d="M512 770 L322 540 L702 540 Z"/>
+    <rect x="312" y="800" width="400" height="74" rx="37"/>
+  </g>
+</svg>
