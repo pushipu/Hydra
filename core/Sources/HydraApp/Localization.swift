@@ -149,6 +149,21 @@ private let table: [String: [String: String]] = [
     "Установить расширение…":   ["en": "Install extension…", "zh": "安装扩展…"],
     "Chrome: распакованное · Firefox: .xpi": ["en": "Chrome: unpacked · Firefox: .xpi", "zh": "Chrome：已解压 · Firefox：.xpi"],
     "Открыть…":                ["en": "Open…", "zh": "打开…"],
+    "Установить…":             ["en": "Install…", "zh": "安装…"],
+    "Сохранить сюда":          ["en": "Save here", "zh": "保存到这里"],
+    "Выберите папку, куда сохранить расширение Hydra":
+        ["en": "Choose a folder to save the Hydra extension", "zh": "选择保存 Hydra 扩展的文件夹"],
+    "Не удалось сохранить расширение": ["en": "Couldn’t save the extension", "zh": "无法保存扩展"],
+    "Расширение сохранено — осталось загрузить в браузер":
+        ["en": "Extension saved — now load it in your browser", "zh": "扩展已保存——现在在浏览器中加载"],
+    "Chrome / Brave / Edge:":  ["en": "Chrome / Brave / Edge:", "zh": "Chrome / Brave / Edge："],
+    "chrome://extensions → «Режим разработчика» → «Загрузить распакованное» → папка chrome.":
+        ["en": "chrome://extensions → enable Developer mode → Load unpacked → the chrome folder.",
+         "zh": "chrome://extensions → 打开开发者模式 → 加载已解压的扩展程序 → chrome 文件夹。"],
+    "Firefox:":                ["en": "Firefox:", "zh": "Firefox："],
+    "about:debugging → «Загрузить временное дополнение» → hydra-firefox.xpi.":
+        ["en": "about:debugging → Load Temporary Add-on → hydra-firefox.xpi.",
+         "zh": "about:debugging → 临时载入附加组件 → hydra-firefox.xpi。"],
     "Эти настройки применяются и в браузерном расширении — оно читает их из приложения.":
         ["en": "These settings also apply to the browser extension — it reads them from the app.",
          "zh": "这些设置同样应用于浏览器扩展——它从应用读取。"],

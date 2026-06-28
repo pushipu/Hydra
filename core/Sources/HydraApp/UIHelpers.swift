@@ -7,11 +7,50 @@ extension Color {
     static let accent = Color(nsColor: .controlAccentColor)
 }
 
-/// Открыть в Finder вложенные в app расширения (Resources/Extensions: chrome/ + xpi).
-/// Пока расширения не в магазинах — ставим их прямо из приложения.
-func revealBundledExtensions() {
-    guard let dir = Bundle.main.resourceURL?.appendingPathComponent("Extensions") else { return }
-    NSWorkspace.shared.open(dir)
+/// Помочь поставить расширение: даём выбрать удобную папку, копируем туда
+/// вложенные в app пакеты (chrome/ + xpi), открываем в Finder и показываем шаги.
+/// Из самого .app грузить нельзя — путь внутри bundle ломается при обновлении/переносе.
+@MainActor
+func installBrowserExtension() {
+    guard let src = Bundle.main.resourceURL?.appendingPathComponent("Extensions") else { return }
+    let panel = NSOpenPanel()
+    panel.canChooseDirectories = true
+    panel.canChooseFiles = false
+    panel.allowsMultipleSelection = false
+    panel.prompt = L("Сохранить сюда")
+    panel.message = L("Выберите папку, куда сохранить расширение Hydra")
+    panel.directoryURL = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
+    guard panel.runModal() == .OK, let dir = panel.url else { return }
+
+    let fm = FileManager.default
+    let dest = dir.appendingPathComponent("Hydra Extension", isDirectory: true)
+    do {
+        try? fm.removeItem(at: dest)
+        try fm.createDirectory(at: dest, withIntermediateDirectories: true)
+        try fm.copyItem(at: src.appendingPathComponent("chrome"), to: dest.appendingPathComponent("chrome"))
+        try fm.copyItem(at: src.appendingPathComponent("hydra-firefox.xpi"),
+                        to: dest.appendingPathComponent("hydra-firefox.xpi"))
+    } catch {
+        let a = NSAlert()
+        a.messageText = L("Не удалось сохранить расширение")
+        a.informativeText = error.localizedDescription
+        a.runModal()
+        return
+    }
+    NSWorkspace.shared.activateFileViewerSelecting([dest.appendingPathComponent("chrome")])
+
+    let steps = [
+        L("Chrome / Brave / Edge:"),
+        L("chrome://extensions → «Режим разработчика» → «Загрузить распакованное» → папка chrome."),
+        "",
+        L("Firefox:"),
+        L("about:debugging → «Загрузить временное дополнение» → hydra-firefox.xpi."),
+    ].joined(separator: "\n")
+    let a = NSAlert()
+    a.messageText = L("Расширение сохранено — осталось загрузить в браузер")
+    a.informativeText = steps
+    a.addButton(withTitle: L("Готово"))
+    a.runModal()
 }
 
 // Форматтеры и хелперы, общие для поповера и большого окна.

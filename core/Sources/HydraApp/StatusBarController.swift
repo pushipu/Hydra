@@ -67,6 +67,7 @@ final class StatusBarController: NSObject, NSWindowDelegate {
             w.styleMask = [.titled, .closable]
             w.isReleasedWhenClosed = false
             w.delegate = self
+            w.setContentSize(NSSize(width: 440, height: 500))   // до center(), иначе центр по нулю
             w.center()
             onboardingWindow = w
         }
@@ -140,7 +141,7 @@ final class StatusBarController: NSObject, NSWindowDelegate {
 
     // MARK: Действия меню
 
-    @objc private func installExtension() { revealBundledExtensions() }
+    @objc private func installExtension() { installBrowserExtension() }
     @objc private func openMain() { showMainWindow() }
     @objc private func openSettings() { showSettings() }
     @objc private func toggleDrop() { AppSettings.shared.dropWindowVisible.toggle() }
@@ -174,6 +175,7 @@ final class StatusBarController: NSObject, NSWindowDelegate {
             w.styleMask = [.titled, .closable]
             w.isReleasedWhenClosed = false
             w.delegate = self
+            w.setContentSize(NSSize(width: 680, height: 460))   // до center(), иначе центр по нулю
             w.center()
             settingsWindow = w
         }

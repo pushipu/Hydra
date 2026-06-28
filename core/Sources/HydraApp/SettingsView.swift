@@ -95,7 +95,7 @@ struct SettingsView: View {
                             .font(.system(size: 11)).foregroundStyle(.secondary)
                     }
                     Spacer()
-                    Button(L("Открыть…")) { revealBundledExtensions() }
+                    Button(L("Установить…")) { installBrowserExtension() }
                 }
             }
             Section {

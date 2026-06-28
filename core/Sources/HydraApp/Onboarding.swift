@@ -43,7 +43,7 @@ struct OnboardingView: View {
                 Text(L("Перехватывает ссылки и передаёт сессию в Hydra."))
                     .font(.system(size: 11.5)).foregroundStyle(.secondary)
                 HStack {
-                    Button(L("Установить расширение")) { revealBundledExtensions() }
+                    Button(L("Установить расширение")) { installBrowserExtension() }
                     Spacer()
                     pairingBadge
                 }
