@@ -19,6 +19,7 @@ extension/manifest.json
 
 # Build output (+ chrome private key)
 dist/
+app/Hydra.app/
 
 # Local editor/agent config
 .claude/settings.local.json

@@ -64,6 +64,7 @@ private let table: [String: [String: String]] = [
     // — Состояния строки —
     "В очереди":               ["en": "Queued", "zh": "排队中"],
     "Пауза":                   ["en": "Paused", "zh": "已暂停"],
+    "Приостановить":           ["en": "Pause", "zh": "暂停"],
     "Готово":                  ["en": "Done", "zh": "完成"],
     "Отменено":                ["en": "Cancelled", "zh": "已取消"],
     "Ошибка":                  ["en": "Error", "zh": "错误"],

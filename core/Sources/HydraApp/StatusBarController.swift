@@ -21,13 +21,16 @@ final class StatusBarController: NSObject, NSWindowDelegate {
         super.init()
 
         popover.behavior = .transient
-        popover.contentSize = NSSize(width: 380, height: 432)
+        // Размер диктует SwiftUI-контент (адаптивная высота под детальный экран,
+        // ≤70% экрана) — фиксированный contentSize не ставим, иначе попап не растянется.
         // Действия передаём явно — попап вне SwiftUI-сцен, environment openWindow там не работает.
         let content = ContentView(
             queue: queue,
             onOpenWindow: { [weak self] in self?.popover.performClose(nil); self?.showMainWindow() },
             onOpenSettings: { [weak self] in self?.popover.performClose(nil); self?.showSettings() })
-        popover.contentViewController = NSHostingController(rootView: content)
+        let hosting = NSHostingController(rootView: content)
+        hosting.sizingOptions = [.preferredContentSize]   // фитит попап под контент
+        popover.contentViewController = hosting
 
         if let button = statusItem.button {
             button.target = self

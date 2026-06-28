@@ -19,15 +19,20 @@ struct ContentView: View {
     var body: some View {
         Group {
             if let id = selected, let task = queue.tasks.first(where: { $0.id == id }) {
-                DownloadDetail(task: task, queue: queue) { withAnimation(.easeOut(duration: 0.18)) { selected = nil } }
+                DownloadDetail(task: task, queue: queue, maxHeight: maxPopoverHeight) {
+                    withAnimation(.easeOut(duration: 0.18)) { selected = nil }
+                }
             } else {
-                mainList
+                mainList.frame(height: 432)
             }
         }
-        .frame(width: 380, height: 432)
+        .frame(width: 380)
         .background(.regularMaterial)
         .tint(.accent)
     }
+
+    /// Попап адаптивный, но не выше 70% экрана.
+    private var maxPopoverHeight: CGFloat { (NSScreen.main?.visibleFrame.height ?? 900) * 0.7 }
 
     private var mainList: some View {
         VStack(spacing: 0) {
@@ -324,11 +329,21 @@ private struct DownloadRow: View {
 private struct DownloadDetail: View {
     let task: DownloadTask
     @ObservedObject var queue: DownloadQueue
+    var maxHeight: CGFloat
     var onBack: () -> Void
     @State private var spark: [Double] = []   // история скорости этой загрузки (последние тики)
 
     private var p: DownloadProgress? { task.progress }
     private var active: Bool { task.state == .running || task.state == .paused }
+    private let chrome: CGFloat = 96           // навбар + панель действий
+
+    /// Высота контента из данных (без GeometryReader — он внутри ScrollView даёт цикл).
+    private var contentHeight: CGFloat {
+        var h: CGFloat = 26 + 52               // padding + hero
+        if let segs = p?.segments, !segs.isEmpty { h += 40 + CGFloat(segs.count) * 24 }
+        if active { h += 290 }                  // блоки «Скорость» + «Сводка»
+        return h
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -342,7 +357,19 @@ private struct DownloadDetail: View {
                 }
                 .padding(13)
             }
+            .frame(height: min(contentHeight, maxHeight - chrome))   // под контент, но ≤70% экрана
             actionBar
+        }
+        .onAppear {
+            // Посев спарклайна, чтобы график был «живым» сразу (и в демо, и на старте реальной).
+            // Реалистичный профиль: разгон к текущей скорости + случайный джиттер.
+            if spark.isEmpty, let bps = p?.bytesPerSecond, bps > 0 {
+                var v = bps * 0.25
+                spark = (0..<48).map { _ in
+                    v += (bps - v) * 0.16                                  // плавный разгон к bps
+                    return max(bps * 0.1, v + Double.random(in: -0.13...0.13) * bps)
+                }
+            }
         }
         .onChange(of: p?.receivedBytes) { _ in
             guard task.state == .running, let bps = p?.bytesPerSecond else { return }
@@ -486,7 +513,7 @@ private struct DownloadDetail: View {
         HStack(spacing: 8) {
             switch task.state {
             case .running:
-                detailButton(L("Пауза"), filled: true) { queue.pause(task.id) }
+                detailButton(L("Приостановить"), filled: true) { queue.pause(task.id) }
                 detailButton(L("Отмена")) { queue.remove(task.id, deleteFile: true); onBack() }
             case .paused:
                 detailButton(L("Возобновить"), filled: true) { queue.resume(task.id) }

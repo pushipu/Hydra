@@ -221,23 +221,33 @@ class DownloadQueue: ObservableObject {
         func blocks(done: Int, active: Int, total: Int) -> [BlockState] {
             (0..<total).map { $0 < done ? .done : ($0 < done + active ? .active : .empty) }
         }
+        // Демо-сегменты по потокам для расширенного представления: (нач. МБ, кон. МБ, доля).
+        func segs(_ pairs: [(Int64, Int64, Double)]) -> [SegmentInfo] {
+            pairs.enumerated().map { i, p in
+                let lo = p.0 * mb, hi = p.1 * mb - 1
+                return SegmentInfo(id: i, range: lo...hi, received: Int64(Double(hi - lo + 1) * p.2))
+            }
+        }
         func task(_ url: String, _ name: String, _ state: DownloadTask.State,
                   recv: Int64 = 0, total: Int64? = nil, conns: Int = 0, bps: Double = 0,
-                  blk: [BlockState]? = nil, path: String? = nil, history: Bool = false, err: String? = nil) -> DownloadTask {
+                  blk: [BlockState]? = nil, seg: [SegmentInfo]? = nil,
+                  path: String? = nil, history: Bool = false, err: String? = nil) -> DownloadTask {
             nextID += 1
             var t = DownloadTask(id: nextID, url: URL(string: url)!, filename: name, state: state, startedAt: Date())
-            t.progress = DownloadProgress(totalBytes: total, receivedBytes: recv, connections: conns, bytesPerSecond: bps, blocks: blk)
+            t.progress = DownloadProgress(totalBytes: total, receivedBytes: recv, connections: conns, bytesPerSecond: bps, blocks: blk, segments: seg)
             t.path = path; t.fromHistory = history; t.error = err
             return t
         }
         tasks = [
-            task("https://releases.example.com/macos-sequoia.dmg", "macOS Sequoia установщик.dmg", .running,
-                 recv: 1500 * mb, total: 2410 * mb, conns: 6, bps: 23.5 * Double(mb), blk: blocks(done: 156, active: 6, total: 256)),
+            task("https://releases.example.com/macos-sequoia.dmg", "macOS Sequoia.dmg", .running,
+                 recv: 1500 * mb, total: 2410 * mb, conns: 6, bps: 23.5 * Double(mb), blk: blocks(done: 156, active: 6, total: 256),
+                 seg: segs([(0, 401, 0.93), (401, 803, 0.81), (803, 1205, 0.70),
+                            (1205, 1606, 0.58), (1606, 2008, 0.49), (2008, 2410, 0.40)])),
             task("https://data.lab.io/dataset-2024-full.zip", "dataset-2024-full.zip", .queued, total: 4100 * mb),
             task("https://cdn.school.edu/lecture-07.mp4", "lecture-07-recording-4k.mp4", .paused,
                  recv: 738 * mb, total: 1800 * mb, conns: 8, blk: blocks(done: 105, active: 0, total: 256)),
-            task("https://nas.local/backup-2024-06.tar.zst", "backup-2024-06.tar.zst", .failed, err: "Недостаточно места на диске"),
-            task("https://docs.company.com/q3.pdf", "q3-отчёт-финал.pdf", .done, recv: 4 * mb, total: 4 * mb, path: "/Users/me/Downloads/q3-отчёт-финал.pdf", history: true),
+            task("https://nas.local/backup-2024-06.tar.zst", "backup-2024-06.tar.zst", .failed, err: L("Недостаточно места на диске")),
+            task("https://docs.company.com/q3.pdf", "q3-report-final.pdf", .done, recv: 4 * mb, total: 4 * mb, path: "/Users/me/Downloads/q3-report-final.pdf", history: true),
             task("https://mega.example/archive.zip", "season-archive-2024.zip", .done, recv: 1100 * mb, total: 1100 * mb, path: "/Users/me/Downloads/season-archive-2024.zip", history: true),
             task("https://figma.com/design-assets.fig", "design-assets.fig", .done, recv: 88 * mb, total: 88 * mb, path: "/Users/me/Downloads/design-assets.fig", history: true),
         ]

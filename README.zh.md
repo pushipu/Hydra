@@ -37,17 +37,17 @@ macOS 13+ · Swift · 原生 SwiftUI/AppKit
 
 ## 截图
 
-| 菜单栏弹窗 | 下载窗口 |
+| 菜单栏弹窗 | 下载详情（多线程） |
 |---|---|
-| ![popover](docs/screenshots/popover.png) | ![window](docs/screenshots/window.png) |
+| ![popover](docs/screenshots/popover.png) | ![detail](docs/screenshots/detail.png) |
 
-| 设置 | 拖放窗口 |
+| 下载窗口 | 单条下载操作 |
+|---|---|
+| ![window](docs/screenshots/window.png) | ![menu](docs/screenshots/menu.png) |
+
+| 设置 | 悬浮拖放圆环 |
 |---|---|
 | ![settings](docs/screenshots/settings.png) | ![drop](docs/screenshots/drop.png) |
-
-| 扩展弹窗 | 通知 |
-|---|---|
-| ![extension](docs/screenshots/extension.png) | ![notification](docs/screenshots/notification.png) |
 
 ## 工作原理
 

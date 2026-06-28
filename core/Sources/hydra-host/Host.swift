@@ -57,7 +57,7 @@ struct Host {
     private static func demoDownloads() -> [[String: Any]] {
         let mb: Int64 = 1_048_576
         return [
-            ["name": "macOS Sequoia установщик.dmg", "total": 2410 * mb, "done": 1500 * mb, "running": true],
+            ["name": "macOS Sequoia.dmg", "total": 2410 * mb, "done": 1500 * mb, "running": true],
             ["name": "dataset-2024-full.zip", "total": 4100 * mb, "done": 0, "running": false],
             ["name": "lecture-07-recording-4k.mp4", "total": 1800 * mb, "done": 738 * mb, "running": false],
         ]

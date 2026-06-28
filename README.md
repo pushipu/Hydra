@@ -41,17 +41,17 @@ macOS 13+ · Swift · native SwiftUI/AppKit
 
 ## Screenshots
 
-| Menu-bar popover | Downloads window |
+| Menu-bar popover | Download details (multithreaded) |
 |---|---|
-| ![popover](docs/screenshots/popover.png) | ![window](docs/screenshots/window.png) |
+| ![popover](docs/screenshots/popover.png) | ![detail](docs/screenshots/detail.png) |
 
-| Settings | Drop window |
+| Downloads window | Per-download actions |
+|---|---|
+| ![window](docs/screenshots/window.png) | ![menu](docs/screenshots/menu.png) |
+
+| Settings | Floating drop circle |
 |---|---|
 | ![settings](docs/screenshots/settings.png) | ![drop](docs/screenshots/drop.png) |
-
-| Extension popup | Notifications |
-|---|---|
-| ![extension](docs/screenshots/extension.png) | ![notification](docs/screenshots/notification.png) |
 
 ## How it works
 

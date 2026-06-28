@@ -40,17 +40,17 @@ macOS 13+ · Swift · нативный SwiftUI/AppKit
 
 ## Скриншоты
 
-| Поповер в строке меню | Окно загрузок |
+| Поповер в строке меню | Детали загрузки (многопоток) |
 |---|---|
-| ![popover](docs/screenshots/popover.png) | ![window](docs/screenshots/window.png) |
+| ![popover](docs/screenshots/popover.png) | ![detail](docs/screenshots/detail.png) |
 
-| Настройки | Окно-приёмник |
+| Окно загрузок | Действия над загрузкой |
+|---|---|
+| ![window](docs/screenshots/window.png) | ![menu](docs/screenshots/menu.png) |
+
+| Настройки | Плавающий круг-приёмник |
 |---|---|
 | ![settings](docs/screenshots/settings.png) | ![drop](docs/screenshots/drop.png) |
-
-| Попап расширения | Уведомления |
-|---|---|
-| ![extension](docs/screenshots/extension.png) | ![notification](docs/screenshots/notification.png) |
 
 ## Как это работает
 
