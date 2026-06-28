@@ -101,6 +101,10 @@ Requires the Xcode/Swift toolchain and `rsvg` (for icons: `brew install librsvg`
 Drops into `dist/`: `Hydra.app` (host embedded, self-registering), `chrome/`
 (unpacked extension), `hydra-chrome.zip`, `hydra-firefox.xpi`.
 
+Version is single-sourced from the `VERSION` file: the build stamps it into the
+app's `Info.plist` and every extension manifest (`CFBundleVersion` = git commit
+count). Bump `VERSION`, rebuild — app and extensions stay in lockstep.
+
 ```bash
 cd core && swift test          # engine tests (byte-exact, resume, filename sanitizing)
 .build/release/hydractl URL --out ~/Downloads --connections 8   # CLI

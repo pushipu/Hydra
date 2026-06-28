@@ -95,6 +95,9 @@ macOS 13+ · Swift · 原生 SwiftUI/AppKit
 产物输出到 `dist/`：`Hydra.app`（内嵌主机、自注册）、`chrome/`（已解压扩展）、
 `hydra-chrome.zip`、`hydra-firefox.xpi`。
 
+版本号统一来源于 `VERSION` 文件：构建时写入应用的 `Info.plist` 和所有扩展清单
+（`CFBundleVersion` = git 提交数）。改 `VERSION`、重新构建——应用与扩展保持同步。
+
 ```bash
 cd core && swift test          # 引擎测试（逐字节、恢复、文件名清洗）
 .build/release/hydractl URL --out ~/Downloads --connections 8   # CLI

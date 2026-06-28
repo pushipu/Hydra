@@ -61,7 +61,9 @@ async function render() {
     }).join('');
   }
 
-  ai.textContent = st ? 'Авто-перехват: ' + (st.autoIntercept ? 'вкл' : 'выкл') : '';
+  const ver = api.runtime.getManifest().version;
+  const auto = st ? 'Авто-перехват: ' + (st.autoIntercept ? 'вкл' : 'выкл') : '';
+  ai.textContent = [auto, 'v' + ver].filter(Boolean).join(' · ');
 }
 
 document.getElementById('opts').addEventListener('click', () => api.runtime.openOptionsPage());

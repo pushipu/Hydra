@@ -17,6 +17,19 @@ ROOT="$(cd "$(dirname "$0")" && pwd)"
 DIST="$ROOT/dist"
 EXT="$ROOT/extension"
 
+# --- Версия: единый источник VERSION. Сборка штампует её в Info.plist приложения
+# и в манифесты расширений; CFBundleVersion = число коммитов (монотонный build). ---
+VERSION="$(tr -d ' \t\r\n' < "$ROOT/VERSION")"
+BUILD="$(git -C "$ROOT" rev-list --count HEAD 2>/dev/null || echo 1)"
+export HYDRA_VERSION="$VERSION" HYDRA_BUILD="$BUILD"
+echo "▸ Версия: $VERSION (build $BUILD)"
+# Проставить "version" в manifest.json.
+set_manifest_version() { # <file> <version>
+  python3 -c "import json,sys
+p=sys.argv[1]; d=json.load(open(p)); d['version']=sys.argv[2]
+json.dump(d, open(p,'w'), indent=2, ensure_ascii=False)" "$1" "$2"
+}
+
 # --- 0. Guard: ключ в manifest.chrome.json должен давать тот же id, что вшит в host. ---
 KEY=$(python3 -c "import json,sys; print(json.load(open('$EXT/manifest.chrome.json'))['key'])")
 DERIVED=$(printf '%s' "$KEY" | base64 -D 2>/dev/null | openssl dgst -sha256 -binary | python3 -c "
@@ -64,6 +77,7 @@ pack() { # <target-manifest> <staging-dir>
   rm -rf "$stage"; mkdir -p "$stage"
   cp -R "$EXT/src" "$EXT/icons" "$stage/"
   cp "$EXT/$manifest" "$stage/manifest.json"
+  set_manifest_version "$stage/manifest.json" "$VERSION"   # версия из VERSION
 }
 
 echo "▸ Пакет Chrome…"

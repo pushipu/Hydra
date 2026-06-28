@@ -18,16 +18,29 @@ cp .build/release/hydra-host "$APP/Contents/Resources/hydra-host"
 cp "$ROOT/app/Hydra/icon.icns" "$APP/Contents/Resources/icon.icns"
 cp "$ROOT/app/Hydra/Info.plist" "$APP/Contents/Info.plist"
 
+# Версия: штампуем из VERSION (или env от build-all). Единый источник для app и расширений.
+VERSION="${HYDRA_VERSION:-$(tr -d ' \t\r\n' < "$ROOT/VERSION" 2>/dev/null || echo 0.0.0)}"
+BUILD="${HYDRA_BUILD:-1}"
+/usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$APP/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Set :CFBundleVersion $BUILD" "$APP/Contents/Info.plist"
+
 # Вкладываем готовые расширения внутрь app, чтобы ставить их прямо из приложения,
 # пока они не в магазинах. Кладём в Resources/Extensions до подписи bundle.
 EXT="$ROOT/extension"
 EXTDST="$APP/Contents/Resources/Extensions"
+set_manifest_version() { # <file> <version>
+  python3 -c "import json,sys
+p=sys.argv[1]; d=json.load(open(p)); d['version']=sys.argv[2]
+json.dump(d, open(p,'w'), indent=2, ensure_ascii=False)" "$1" "$2"
+}
 mkdir -p "$EXTDST/chrome"
 cp -R "$EXT/src" "$EXT/icons" "$EXTDST/chrome/"
 cp "$EXT/manifest.chrome.json" "$EXTDST/chrome/manifest.json"
+set_manifest_version "$EXTDST/chrome/manifest.json" "$VERSION"
 FX="$(mktemp -d)"
 cp -R "$EXT/src" "$EXT/icons" "$FX/"
 cp "$EXT/manifest.firefox.json" "$FX/manifest.json"
+set_manifest_version "$FX/manifest.json" "$VERSION"
 ( cd "$FX" && zip -qr "$EXTDST/hydra-firefox.xpi" . )
 rm -rf "$FX"
 

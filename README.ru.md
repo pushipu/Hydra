@@ -100,6 +100,10 @@ macOS 13+ · Swift · нативный SwiftUI/AppKit
 Кладёт в `dist/`: `Hydra.app` (с вложенным хостом, само-регистрация), `chrome/`
 (распакованное расширение), `hydra-chrome.zip`, `hydra-firefox.xpi`.
 
+Версия — единый источник в файле `VERSION`: сборка штампует её в `Info.plist`
+приложения и во все манифесты расширений (`CFBundleVersion` = число git-коммитов).
+Поднял `VERSION`, пересобрал — приложение и расширения идут в ногу.
+
 ```bash
 cd core && swift test          # тесты движка (байт-в-байт, резюм, санитайзинг имён)
 .build/release/hydractl URL --out ~/Downloads --connections 8   # CLI

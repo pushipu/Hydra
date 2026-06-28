@@ -128,8 +128,24 @@ struct SettingsView: View {
                 Toggle(L("Запуск при входе в систему"), isOn: $s.launchAtLogin)
                 Toggle(L("Плавающее окно для перетаскивания ссылок"), isOn: $s.dropWindowVisible)
             }
+            Section {
+                HStack {
+                    Text(L("Версия")).foregroundStyle(.secondary)
+                    Spacer()
+                    Text(appVersion).foregroundStyle(.secondary).monospacedDigit()
+                }
+                .font(.system(size: 12))
+            }
         }
         .formStyle(.grouped)
+    }
+
+    /// Версия приложения из Info.plist (штампуется из VERSION при сборке).
+    private var appVersion: String {
+        let info = Bundle.main.infoDictionary
+        let v = info?["CFBundleShortVersionString"] as? String ?? "—"
+        let b = info?["CFBundleVersion"] as? String ?? ""
+        return b.isEmpty ? v : "\(v) (\(b))"
     }
 
     private var folders: some View {

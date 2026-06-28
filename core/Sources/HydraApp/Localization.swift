@@ -177,6 +177,7 @@ private let table: [String: [String: String]] = [
     "Система":                 ["en": "System", "zh": "系统"],
     "Общие":                   ["en": "General", "zh": "通用"],
     "Язык":                    ["en": "Language", "zh": "语言"],
+    "Версия":                  ["en": "Version", "zh": "版本"],
     "Запуск при входе в систему": ["en": "Launch at login", "zh": "登录时启动"],
     "Плавающее окно для перетаскивания ссылок":
         ["en": "Floating link-drop window", "zh": "链接拖放浮窗"],
