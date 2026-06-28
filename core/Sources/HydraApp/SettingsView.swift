@@ -131,8 +131,9 @@ struct SettingsView: View {
             Section {
                 HStack {
                     Text(L("Версия")).foregroundStyle(.secondary)
-                    Spacer()
                     Text(appVersion).foregroundStyle(.secondary).monospacedDigit()
+                    Spacer()
+                    Button(L("Проверить обновления")) { Updater.shared.checkNow() }
                 }
                 .font(.system(size: 12))
             }

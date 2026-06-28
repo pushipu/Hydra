@@ -20,6 +20,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if UserDefaults.standard.bool(forKey: "demoMode") { queue.injectDemoData() }   // моки для скриншотов
         else { queue.restore() }
         statusBar = StatusBarController(queue: queue)   // иконка строки меню + ПКМ-меню
+        if !UserDefaults.standard.bool(forKey: "demoMode") { Updater.shared.checkOnLaunch() }
     }
 }
 

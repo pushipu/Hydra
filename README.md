@@ -36,6 +36,7 @@ macOS 13+ · Swift · native SwiftUI/AppKit
   "Download with Hydra" in the context menu.
 - **Floating drop window** — always on top; drag a link from anywhere onto it.
 - **Native notifications** — completion, error (with "Retry"), sign-in required.
+- **Update check** — notifies on launch when a newer release is on GitHub; manual check in Settings/menu.
 - **Native macOS look** — system accent, materials/vibrancy, SF, dark/light theme.
 - **Localized** — English, Russian, Chinese; switch in Settings → System → Language.
 

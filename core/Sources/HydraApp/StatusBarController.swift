@@ -118,6 +118,11 @@ final class StatusBarController: NSObject, NSWindowDelegate {
         menu.addItem(drop)
         add(menu, L("Настройки…"), #selector(openSettings), key: ",")
         add(menu, L("Установить расширение…"), #selector(installExtension))
+        if let up = Updater.shared.available {
+            add(menu, "\(L("Обновление")) \(up.version) →", #selector(openUpdate))
+        } else {
+            add(menu, L("Проверить обновления…"), #selector(checkUpdates))
+        }
         menu.addItem(.separator())
         if queue.active > 0 {
             add(menu, L("Пауза всех"), #selector(pauseAll))
@@ -142,6 +147,8 @@ final class StatusBarController: NSObject, NSWindowDelegate {
     // MARK: Действия меню
 
     @objc private func installExtension() { installBrowserExtension() }
+    @objc private func checkUpdates() { Updater.shared.checkNow() }
+    @objc private func openUpdate() { if let u = Updater.shared.available?.url { NSWorkspace.shared.open(u) } }
     @objc private func openMain() { showMainWindow() }
     @objc private func openSettings() { showSettings() }
     @objc private func toggleDrop() { AppSettings.shared.dropWindowVisible.toggle() }

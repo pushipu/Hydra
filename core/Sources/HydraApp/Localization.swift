@@ -178,6 +178,11 @@ private let table: [String: [String: String]] = [
     "Общие":                   ["en": "General", "zh": "通用"],
     "Язык":                    ["en": "Language", "zh": "语言"],
     "Версия":                  ["en": "Version", "zh": "版本"],
+    "Проверить обновления":     ["en": "Check for updates", "zh": "检查更新"],
+    "Проверить обновления…":    ["en": "Check for updates…", "zh": "检查更新…"],
+    "Обновление":              ["en": "Update", "zh": "更新"],
+    "Доступно обновление Hydra": ["en": "Hydra update available", "zh": "Hydra 有可用更新"],
+    "У вас актуальная версия":  ["en": "You’re up to date", "zh": "已是最新版本"],
     "Запуск при входе в систему": ["en": "Launch at login", "zh": "登录时启动"],
     "Плавающее окно для перетаскивания ссылок":
         ["en": "Floating link-drop window", "zh": "链接拖放浮窗"],

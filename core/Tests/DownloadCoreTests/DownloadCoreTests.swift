@@ -184,4 +184,13 @@ final class DownloadCoreTests: XCTestCase {
         let covered = chunks.reduce(Int64(0)) { $0 + ($1.1 - $1.0 + 1) }
         XCTAssertEqual(covered, 1000)
     }
+
+    func testVersionComparison() {
+        XCTAssertTrue(isVersion("0.2.0", newerThan: "0.1.0"))
+        XCTAssertTrue(isVersion("1.0.0", newerThan: "0.9.9"))
+        XCTAssertTrue(isVersion("v0.1.1", newerThan: "0.1"))      // ведущая v + разная длина
+        XCTAssertFalse(isVersion("0.1.0", newerThan: "0.1.0"))    // равные
+        XCTAssertFalse(isVersion("0.1.0", newerThan: "0.2.0"))    // старее
+        XCTAssertFalse(isVersion("0.1", newerThan: "0.1.0"))      // 0.1 == 0.1.0
+    }
 }

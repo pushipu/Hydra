@@ -28,6 +28,11 @@ final class Notifier: NSObject, NSUserNotificationCenterDelegate {
                 action: L("Повторить"), userInfo: ["taskId": taskId])
     }
 
+    @MainActor func notifyUpdate(version: String, url: String) {
+        deliver(title: L("Доступно обновление Hydra"), body: "\(L("Версия")) \(version)",
+                action: L("Открыть"), userInfo: ["url": url])
+    }
+
     @MainActor func notifyAuthRequired(taskId: Int, filename: String, url: String) {
         let h = URL(string: url)?.host ?? filename
         deliver(title: L("Требуется вход"), body: "\(h) · \(L("сессия истекла во время загрузки"))",
