@@ -76,8 +76,20 @@ Browser ──(link capture + session)──▶ Extension
 
 ## Install
 
-1. Download `Hydra.app` from [Releases](../../releases), drag it into
-   `/Applications`, launch once — it registers the host into every installed browser.
+### Homebrew (easiest)
+
+```bash
+brew install --cask --no-quarantine pushipu/tap/hydra
+```
+
+`--no-quarantine` is needed while the app is ad-hoc signed (not notarized yet); it
+lets the app open without Gatekeeper warnings. Then continue from step 2 below.
+
+### Manual
+
+1. Download `Hydra-0.1.0-macos.zip` from [Releases](../../releases), unzip, move
+   `Hydra.app` to `/Applications`, launch once — it registers the host into every
+   installed browser.
 2. Install the extension for your browser — the app bundles both. Open
    **Settings → Capture → Install extension** (or the menu-bar menu → "Install
    extension…"); Finder opens the bundled `chrome/` folder and `hydra-firefox.xpi`:
