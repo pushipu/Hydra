@@ -132,4 +132,4 @@ docs/             ARCHITECTURE.md, SAFARI_SETUP.md, USAGE.md, screenshots/
 
 ## Лицензия
 
-Лицензия пока не выбрана — добавьте по вкусу (MIT/Apache-2.0/…) файлом `LICENSE`.
+[MIT](LICENSE) © pushipu

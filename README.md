@@ -133,4 +133,4 @@ source of truth in the app; the extension reads them through the host.
 
 ## License
 
-No license chosen yet — add one to taste (MIT/Apache-2.0/…) as a `LICENSE` file.
+[MIT](LICENSE) © pushipu

@@ -125,4 +125,4 @@ docs/             ARCHITECTURE.md、SAFARI_SETUP.md、USAGE.md、screenshots/
 
 ## 许可证
 
-尚未选择许可证 —— 按需添加（MIT/Apache-2.0/…）为 `LICENSE` 文件。
+[MIT](LICENSE) © pushipu
