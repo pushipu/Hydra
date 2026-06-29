@@ -107,7 +107,7 @@ brew install --cask --no-quarantine pushipu/tap/hydra
 
 ### Вручную
 
-1. Скачайте `Hydra-0.1.0-macos.zip` из [Releases](../../releases), распакуйте,
+1. Скачайте свежий `Hydra-*-macos.zip` из [Releases](../../releases), распакуйте,
    перетащите `Hydra.app` в `/Applications`, запустите один раз — она сама пропишет
    хост во все установленные браузеры.
 2. Поставьте расширение своего браузера — оба вшиты в приложение. Откройте

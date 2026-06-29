@@ -108,7 +108,7 @@ lets the app open without Gatekeeper warnings. Then continue from step 2 below.
 
 ### Manual
 
-1. Download `Hydra-0.1.0-macos.zip` from [Releases](../../releases), unzip, move
+1. Download the latest `Hydra-*-macos.zip` from [Releases](../../releases), unzip, move
    `Hydra.app` to `/Applications`, launch once — it registers the host into every
    installed browser.
 2. Install the extension for your browser — the app bundles both. Open

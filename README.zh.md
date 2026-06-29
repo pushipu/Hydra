@@ -102,7 +102,7 @@ brew install --cask --no-quarantine pushipu/tap/hydra
 
 ### 手动
 
-1. 从 [Releases](../../releases) 下载 `Hydra-0.1.0-macos.zip`，解压，将 `Hydra.app`
+1. 从 [Releases](../../releases) 下载最新的 `Hydra-*-macos.zip`，解压，将 `Hydra.app`
    拖入 `/Applications`，运行一次 —— 它会把主机注册到所有已安装的浏览器。
 2. 安装你浏览器的扩展 —— 两者都已内置于应用中。打开
    **设置 → 拦截 → 安装扩展**（或菜单栏菜单 →「安装扩展…」）；访达会打开内置的
