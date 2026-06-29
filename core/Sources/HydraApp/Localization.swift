@@ -45,6 +45,7 @@ private let table: [String: [String: String]] = [
     "Настройки Hydra":         ["en": "Hydra Settings", "zh": "Hydra 设置"],
     "Окно перетаскивания":     ["en": "Drop window", "zh": "拖放窗口"],
     "Окно перетаскивания ссылок": ["en": "Link drop window", "zh": "链接拖放窗口"],
+    "Скрыть окно":             ["en": "Hide window", "zh": "隐藏窗口"],
     "Закрепить попап":         ["en": "Pin popover", "zh": "固定弹窗"],
     "Бросьте ссылку":          ["en": "Drop a link", "zh": "拖入链接"],
     "Отпустите":               ["en": "Release", "zh": "松开"],

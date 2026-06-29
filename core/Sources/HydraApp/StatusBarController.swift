@@ -203,7 +203,10 @@ final class StatusBarController: NSObject, NSWindowDelegate {
             panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
             // Крестик идёт через ту же настройку — иначе меню/настройки рассинхронятся.
             panel.contentView = NSHostingView(
-                rootView: DropTargetView(queue: queue, onClose: { AppSettings.shared.dropWindowVisible = false }))
+                rootView: DropTargetView(queue: queue,
+                    onClose: { AppSettings.shared.dropWindowVisible = false },
+                    onOpenMain: { [weak self] in self?.showMainWindow() },
+                    onOpenSettings: { [weak self] in self?.showSettings() }))
             panel.setFrameAutosaveName("HydraDropPanel")   // запоминаем позицию
             panel.setContentSize(NSSize(width: 150, height: 150))   // autosave мог вернуть старый размер
             if panel.frame.origin == .zero {

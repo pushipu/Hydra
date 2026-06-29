@@ -8,6 +8,8 @@ import DownloadCore
 struct DropTargetView: View {
     let queue: DownloadQueue
     var onClose: () -> Void
+    var onOpenMain: () -> Void = {}
+    var onOpenSettings: () -> Void = {}
     @State private var over = false
     @State private var hover = false
     @State private var clipURL: String?    // ссылка, найденная в буфере при наведении
@@ -23,7 +25,13 @@ struct DropTargetView: View {
             .overlay(alignment: .topTrailing) { closeButton }
             .onHover { h in hover = h; clipURL = h ? Self.clipboardLink() : nil }
             .onTapGesture { if let u = clipURL { add(u); clipURL = nil } }
-            .onDrop(of: [.url, .text, .plainText], isTargeted: $over) { handleDrop($0) }
+            .onDrop(of: [.image, .url, .fileURL, .html, .text, .plainText], isTargeted: $over) { handleDrop($0) }
+            .contextMenu {
+                Button(L("Открыть окно загрузок")) { onOpenMain() }
+                Button(L("Настройки…")) { onOpenSettings() }
+                Divider()
+                Button(L("Скрыть окно")) { onClose() }
+            }
             .animation(.easeOut(duration: 0.15), value: hover || over)
     }
 
@@ -79,8 +87,10 @@ struct DropTargetView: View {
         .buttonStyle(.plain).opacity(hover && !over ? 0.5 : 0).padding(6)
     }
 
-    // MARK: - Приём ссылок (без изменений)
+    // MARK: - Приём ссылок и картинок
 
+    /// Картинка из браузера обычно приходит как URL её src; если URL нет — достаём
+    /// ссылку из HTML-фрагмента (<img src> / <a href>) или из текста.
     private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
         var accepted = false
         for p in providers {
@@ -88,6 +98,12 @@ struct DropTargetView: View {
                 accepted = true
                 p.loadObject(ofClass: NSURL.self) { obj, _ in
                     if let u = obj as? URL { add(u.absoluteString) }
+                }
+            } else if p.hasItemConformingToTypeIdentifier(UTType.html.identifier) {
+                accepted = true
+                p.loadDataRepresentation(forTypeIdentifier: UTType.html.identifier) { data, _ in
+                    if let data, let s = String(data: data, encoding: .utf8),
+                       let link = Self.extractLinks(s).first { add(link) }
                 }
             } else if p.canLoadObject(ofClass: NSString.self) {
                 accepted = true
