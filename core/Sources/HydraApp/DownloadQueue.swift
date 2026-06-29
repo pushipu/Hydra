@@ -11,10 +11,58 @@ struct DownloadTask: Identifiable {
     var path: String?
     var error: String?
     var startedAt: Date
+    var source: TaskSource = .manual   // откуда добавлена загрузка
     var fromHistory = false      // загружено из истории (не показывать в поповере)
     var historyId: String?       // связь с записью HistoryStore для удаления
 
     enum State { case running, queued, paused, done, failed, cancelled }
+}
+
+/// Откуда загрузка попала в очередь.
+enum TaskSource: Equatable {
+    case manual, drop, clipboard
+    case browser(String?)        // домен страницы (Referer), если известен
+
+    /// Иконка SF Symbols для источника.
+    var icon: String {
+        switch self {
+        case .manual:    return "keyboard"
+        case .drop:      return "hand.point.up.left"
+        case .clipboard: return "doc.on.clipboard"
+        case .browser:   return "globe"
+        }
+    }
+
+    /// Подпись источника (локализованная).
+    var label: String {
+        switch self {
+        case .manual:        return L("Вручную")
+        case .drop:          return L("Перетаскивание")
+        case .clipboard:     return L("Буфер обмена")
+        case .browser(let h): return h ?? L("Браузер")
+        }
+    }
+
+    /// Строковый токен для персиста (история/мета).
+    var token: String {
+        switch self {
+        case .manual:        return "manual"
+        case .drop:          return "drop"
+        case .clipboard:     return "clipboard"
+        case .browser(let h): return "browser:" + (h ?? "")
+        }
+    }
+
+    init(token: String) {
+        switch token {
+        case "manual":    self = .manual
+        case "drop":      self = .drop
+        case "clipboard": self = .clipboard
+        default:
+            let h = token.hasPrefix("browser:") ? String(token.dropFirst(8)) : ""
+            self = .browser(h.isEmpty ? nil : h)
+        }
+    }
 }
 
 /// Снимок для строки меню, обновляется 1 раз/сек — чтобы статус-айтем не
@@ -77,11 +125,13 @@ class DownloadQueue: ObservableObject {
 
     // MARK: - Добавление
 
-    func add(request: DownloadRequest) {
+    func add(request: DownloadRequest, source: TaskSource? = nil) {
         let d = ResumableDownload.create(request: request)
+        // Если источник не задан явно — это перехват из браузера: берём домен из Referer.
+        let src = source ?? .browser(request.session.headers["Referer"].flatMap { URL(string: $0)?.host })
         let id = newTask(url: request.url,
                          filename: request.suggestedFilename ?? request.url.lastPathComponent,
-                         download: d)
+                         download: d, source: src)
         startOrQueue(id)
     }
 
@@ -99,12 +149,13 @@ class DownloadQueue: ObservableObject {
         }
     }
 
-    /// Ручное добавление по ссылке (из поля ввода UI).
-    func addURL(_ string: String) {
+    /// Добавление по ссылке (поле ввода, перетаскивание, буфер).
+    func addURL(_ string: String, source: TaskSource = .manual) {
         let trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let url = URL(string: trimmed), url.scheme == "http" || url.scheme == "https" else { return }
         let dest = AppSettings.shared.defaultDestURL
-        add(request: DownloadRequest(url: url, destinationDirectory: dest, maxConnections: defaultConnections))
+        add(request: DownloadRequest(url: url, destinationDirectory: dest, maxConnections: defaultConnections),
+            source: source)
     }
 
     // MARK: - Управление
@@ -144,7 +195,8 @@ class DownloadQueue: ObservableObject {
         guard let idx = idx(id), let path = tasks[idx].path else { return }
         let size = (try? FileManager.default.attributesOfItem(atPath: path)[.size] as? Int64).flatMap { $0 } ?? 0
         let entry = HistoryEntry(url: tasks[idx].url, filename: tasks[idx].filename,
-                                 path: path, size: size, completedAt: Date())
+                                 path: path, size: size, completedAt: Date(),
+                                 origin: tasks[idx].source.token)
         HistoryStore.shared.append(entry)
         tasks[idx].historyId = entry.id
     }
@@ -231,25 +283,33 @@ class DownloadQueue: ObservableObject {
         func task(_ url: String, _ name: String, _ state: DownloadTask.State,
                   recv: Int64 = 0, total: Int64? = nil, conns: Int = 0, bps: Double = 0,
                   blk: [BlockState]? = nil, seg: [SegmentInfo]? = nil,
-                  path: String? = nil, history: Bool = false, err: String? = nil) -> DownloadTask {
+                  path: String? = nil, history: Bool = false, err: String? = nil,
+                  source: TaskSource = .manual) -> DownloadTask {
             nextID += 1
             var t = DownloadTask(id: nextID, url: URL(string: url)!, filename: name, state: state, startedAt: Date())
             t.progress = DownloadProgress(totalBytes: total, receivedBytes: recv, connections: conns, bytesPerSecond: bps, blocks: blk, segments: seg)
-            t.path = path; t.fromHistory = history; t.error = err
+            t.path = path; t.fromHistory = history; t.error = err; t.source = source
             return t
         }
         tasks = [
             task("https://releases.example.com/macos-sequoia.dmg", "macOS Sequoia.dmg", .running,
                  recv: 1500 * mb, total: 2410 * mb, conns: 6, bps: 23.5 * Double(mb), blk: blocks(done: 156, active: 6, total: 256),
                  seg: segs([(0, 401, 0.93), (401, 803, 0.81), (803, 1205, 0.70),
-                            (1205, 1606, 0.58), (1606, 2008, 0.49), (2008, 2410, 0.40)])),
-            task("https://data.lab.io/dataset-2024-full.zip", "dataset-2024-full.zip", .queued, total: 4100 * mb),
+                            (1205, 1606, 0.58), (1606, 2008, 0.49), (2008, 2410, 0.40)]),
+                 source: .browser("developer.apple.com")),
+            task("https://data.lab.io/dataset-2024-full.zip", "dataset-2024-full.zip", .queued, total: 4100 * mb,
+                 source: .browser("data.lab.io")),
             task("https://cdn.school.edu/lecture-07.mp4", "lecture-07-recording-4k.mp4", .paused,
-                 recv: 738 * mb, total: 1800 * mb, conns: 8, blk: blocks(done: 105, active: 0, total: 256)),
-            task("https://nas.local/backup-2024-06.tar.zst", "backup-2024-06.tar.zst", .failed, err: L("Недостаточно места на диске")),
-            task("https://docs.company.com/q3.pdf", "q3-report-final.pdf", .done, recv: 4 * mb, total: 4 * mb, path: "/Users/me/Downloads/q3-report-final.pdf", history: true),
-            task("https://mega.example/archive.zip", "season-archive-2024.zip", .done, recv: 1100 * mb, total: 1100 * mb, path: "/Users/me/Downloads/season-archive-2024.zip", history: true),
-            task("https://figma.com/design-assets.fig", "design-assets.fig", .done, recv: 88 * mb, total: 88 * mb, path: "/Users/me/Downloads/design-assets.fig", history: true),
+                 recv: 738 * mb, total: 1800 * mb, conns: 8, blk: blocks(done: 105, active: 0, total: 256),
+                 source: .browser("school.edu")),
+            task("https://nas.local/backup-2024-06.tar.zst", "backup-2024-06.tar.zst", .failed, err: L("Недостаточно места на диске"),
+                 source: .drop),
+            task("https://docs.company.com/q3.pdf", "q3-report-final.pdf", .done, recv: 4 * mb, total: 4 * mb, path: "/Users/me/Downloads/q3-report-final.pdf", history: true,
+                 source: .browser("docs.company.com")),
+            task("https://mega.example/archive.zip", "season-archive-2024.zip", .done, recv: 1100 * mb, total: 1100 * mb, path: "/Users/me/Downloads/season-archive-2024.zip", history: true,
+                 source: .clipboard),
+            task("https://figma.com/design-assets.fig", "design-assets.fig", .done, recv: 88 * mb, total: 88 * mb, path: "/Users/me/Downloads/design-assets.fig", history: true,
+                 source: .manual),
         ]
     }
 
@@ -257,7 +317,9 @@ class DownloadQueue: ObservableObject {
         // Недокачанные — восстановить и (если качались) продолжить.
         for meta in DownloadStore.shared.loadAll() {
             let d = ResumableDownload(meta: meta)
-            let id = newTask(url: meta.url, filename: meta.filename, download: d)
+            // Источник после перезапуска выводим из сохранённого Referer (если был перехват).
+            let src: TaskSource = meta.headers["Referer"].flatMap { URL(string: $0)?.host }.map { .browser($0) } ?? .manual
+            let id = newTask(url: meta.url, filename: meta.filename, download: d, source: src)
             update(id) { $0.state = .paused; $0.progress = d.staticProgress() }
             if meta.wasRunning { startOrQueue(id) }
         }
@@ -269,6 +331,7 @@ class DownloadQueue: ObservableObject {
             t.path = h.path
             t.fromHistory = true
             t.historyId = h.id
+            t.source = h.origin.map(TaskSource.init(token:)) ?? .manual
             t.progress = DownloadProgress(totalBytes: h.size, receivedBytes: h.size, connections: 0, bytesPerSecond: 0)
             tasks.append(t)
         }
@@ -276,11 +339,13 @@ class DownloadQueue: ObservableObject {
 
     // MARK: - Внутреннее
 
-    private func newTask(url: URL, filename: String, download: ResumableDownload) -> Int {
+    private func newTask(url: URL, filename: String, download: ResumableDownload,
+                         source: TaskSource = .manual) -> Int {
         nextID += 1
         let id = nextID
         let name = filename.isEmpty ? "download" : filename
-        tasks.append(DownloadTask(id: id, url: url, filename: name, state: .paused, startedAt: Date()))
+        tasks.append(DownloadTask(id: id, url: url, filename: name, state: .paused,
+                                  startedAt: Date(), source: source))
         downloads[id] = download
         return id
     }

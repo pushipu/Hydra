@@ -8,11 +8,12 @@ public struct HistoryEntry: Codable, Sendable, Identifiable {
     public var path: String
     public var size: Int64
     public var completedAt: Date
+    public var origin: String?       // источник добавления (токен TaskSource); nil у старых записей
 
     public init(id: String = UUID().uuidString, url: URL, filename: String,
-                path: String, size: Int64, completedAt: Date) {
+                path: String, size: Int64, completedAt: Date, origin: String? = nil) {
         self.id = id; self.url = url; self.filename = filename
-        self.path = path; self.size = size; self.completedAt = completedAt
+        self.path = path; self.size = size; self.completedAt = completedAt; self.origin = origin
     }
 }
 

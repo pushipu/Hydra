@@ -24,7 +24,7 @@ struct DropTargetView: View {
             .overlay(alignment: .bottom) { if hover || over { label } }
             .overlay(alignment: .topTrailing) { closeButton }
             .onHover { h in hover = h; clipURL = h ? Self.clipboardLink() : nil }
-            .onTapGesture { if let u = clipURL { add(u); clipURL = nil } }
+            .onTapGesture { if let u = clipURL { add(u, source: .clipboard); clipURL = nil } }
             .onDrop(of: [.image, .url, .fileURL, .html, .text, .plainText], isTargeted: $over) { handleDrop($0) }
             .contextMenu {
                 Button(L("Открыть окно загрузок")) { onOpenMain() }
@@ -108,16 +108,16 @@ struct DropTargetView: View {
             } else if p.canLoadObject(ofClass: NSString.self) {
                 accepted = true
                 p.loadObject(ofClass: NSString.self) { obj, _ in
-                    if let s = obj as? String { Self.extractLinks(s).forEach(add) }
+                    if let s = obj as? String { Self.extractLinks(s).forEach { add($0) } }
                 }
             }
         }
         return accepted
     }
 
-    private func add(_ s: String) {
+    private func add(_ s: String, source: TaskSource = .drop) {
         guard s.hasPrefix("http") else { return }   // только веб-ссылки
-        Task { @MainActor in queue.addURL(s) }
+        Task { @MainActor in queue.addURL(s, source: source) }
     }
 
     static func extractLinks(_ s: String) -> [String] {

@@ -110,6 +110,12 @@ struct MainWindow: View {
             TableColumn(L("Размер")) { t in
                 Text(taskSizeText(t)).foregroundStyle(.secondary).monospacedDigit()
             }.width(90)
+            TableColumn(L("Источник")) { t in
+                HStack(spacing: 6) {
+                    Image(systemName: t.source.icon).font(.system(size: 10)).foregroundStyle(.tertiary)
+                    Text(t.source.label).foregroundStyle(.secondary).lineLimit(1)
+                }
+            }.width(150)
         }
         .contextMenu(forSelectionType: Int.self) { ids in rowMenu(ids) }
         .onDeleteCommand { deleteSelected() }

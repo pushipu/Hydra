@@ -465,6 +465,8 @@ private struct DownloadDetail: View {
                     statRow(L("Скачано"), fmtBytes(Double(p?.receivedBytes ?? 0)))
                     rowSep
                     statRow(L("Потоков"), "\(p?.connections ?? 0)")
+                    rowSep
+                    statRow(L("Источник"), task.source.label)
                 }
                 .padding(.horizontal, 12).padding(.vertical, 4).background(card)
             }
