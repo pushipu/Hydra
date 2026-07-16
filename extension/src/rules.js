@@ -1,9 +1,10 @@
-// Правила перехвата загрузок. Хранятся в chrome.storage.sync.
+// Правила перехвата загрузок. Хранятся локально в профиле браузера.
 // Классический скрипт: вешает API на self.HydraRules, чтобы работать и в
 // service worker (Chrome), и в background scripts (Firefox), и на страницах.
 (function (global) {
   const DEFAULT_SETTINGS = {
-    enabled: true, // глобальный тумблер авто-перехвата
+    privacyConsent: false, // явное согласие на локальную передачу данных в Hydra.app
+    enabled: false, // глобальный тумблер авто-перехвата
     contextMenuEnabled: true, // пункт «Download with Hydra»
     connections: 8,
     minSizeMB: 10, // не перехватывать файлы мельче (0 = любые)
@@ -41,17 +42,20 @@
     const now = Date.now();
     if (_cache && now - _cacheAt < 30000) return _cache;
     const [stored, host] = await Promise.all([
-      api.storage.sync.get('settings'),
+      api.storage.local.get('settings'),
       fetchHostSettings(),
     ]);
     const app = host ? mapHost(host) : null;
-    const next = Object.assign({}, DEFAULT_SETTINGS, stored.settings || app || {});
+    const saved = stored.settings || {};
+    const next = Object.assign({}, DEFAULT_SETTINGS, Object.keys(saved).length ? saved : (app || {}));
+    next.privacyConsent = saved.privacyConsent === true;
     if (app) {
       next.enabled = app.enabled;
       next.connections = app.connections;
       next.minSizeMB = app.minSizeMB;
     }
-    try { await api.storage.sync.set({ settings: next }); } catch {}
+    if (!next.privacyConsent) next.enabled = false;
+    try { await api.storage.local.set({ settings: next }); } catch {}
     _cache = next;
     _cacheAt = now;
     return next;
@@ -59,19 +63,20 @@
 
   async function saveSettings(settings) {
     const next = Object.assign({}, DEFAULT_SETTINGS, settings);
+    next.enabled = next.privacyConsent && next.enabled;
     await HydraNative.send({
       type: 'setSettings',
       autoIntercept: next.enabled,
       minSizeMB: next.minSizeMB,
       threadsPerFile: next.connections,
     });
-    await api.storage.sync.set({ settings: next });
+    await api.storage.local.set({ settings: next });
     _cache = next;
     _cacheAt = Date.now();
   }
 
   api.storage.onChanged?.addListener((changes, area) => {
-    if (area === 'sync' && changes.settings) { _cache = null; _cacheAt = 0; }
+    if (area === 'local' && changes.settings) { _cache = null; _cacheAt = 0; }
   });
 
   function hostOf(url) {
@@ -95,7 +100,7 @@
 
   // fileSizeBytes может быть -1 (неизвестно).
   function shouldIntercept(settings, { url, fileSizeBytes }) {
-    if (!settings.enabled) return false;
+    if (!settings.privacyConsent || !settings.enabled) return false;
 
     const host = hostOf(url);
     if (settings.domainMode === 'whitelist' && !domainMatches(host, settings.domainList)) return false;

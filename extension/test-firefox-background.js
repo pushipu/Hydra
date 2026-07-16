@@ -32,7 +32,7 @@ const context = {
   browser, console, navigator: { userAgent: 'Firefox test' }, URL,
   HydraNative: { send: async () => ({ type: 'status', connected: true }) },
   HydraRules: {
-    loadSettings: async () => ({ enabled: false, contextMenuEnabled: true }),
+    loadSettings: async () => ({ privacyConsent: false, enabled: false, contextMenuEnabled: true }),
     shouldIntercept: () => true,
   },
 };

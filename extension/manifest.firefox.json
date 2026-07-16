@@ -2,7 +2,8 @@
   "manifest_version": 3,
   "name": "Hydra Download Manager",
   "version": "0.1.0",
-  "description": "Многопоточная загрузка через нативный менеджер Hydra с учётом сессии.",
+  "description": "Send browser downloads to Hydra for fast, controllable downloading on your Mac.",
+  "homepage_url": "https://github.com/pushipu/Hydra",
   "permissions": [
     "downloads",
     "contextMenus",

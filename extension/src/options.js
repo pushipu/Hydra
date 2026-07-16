@@ -117,6 +117,12 @@ function syncRuleDetails() {
   $('extensionDetails').hidden = modeValue('extensionMode') === 'all';
 }
 
+function syncConsent() {
+  const accepted = $('privacyConsent').checked;
+  $('enabled').disabled = !accepted;
+  if (!accepted) $('enabled').checked = false;
+}
+
 function markDirty() {
   if (!ready) return;
   $('save').disabled = false;
@@ -126,7 +132,8 @@ function markDirty() {
 
 async function restore() {
   const settings = await HydraRules.loadSettings();
-  $('enabled').checked = settings.enabled;
+  $('privacyConsent').checked = settings.privacyConsent;
+  $('enabled').checked = settings.privacyConsent && settings.enabled;
   $('contextMenuEnabled').checked = settings.contextMenuEnabled;
   $('connections').value = settings.connections;
   $('minSizeMB').value = settings.minSizeMB;
@@ -134,6 +141,7 @@ async function restore() {
   domains.set(settings.domainList);
   setMode('extensionMode', settings.extensionMode);
   extensions.set(settings.extensionList);
+  syncConsent();
   syncRuleDetails();
   ready = true;
 }
@@ -145,7 +153,8 @@ async function save(event) {
   $('status').textContent = 'Сохраняем…';
 
   const settings = {
-    enabled: $('enabled').checked,
+    privacyConsent: $('privacyConsent').checked,
+    enabled: $('privacyConsent').checked && $('enabled').checked,
     contextMenuEnabled: $('contextMenuEnabled').checked,
     connections: Math.max(1, Math.min(32, parseInt($('connections').value, 10) || 8)),
     minSizeMB: Math.max(0, parseInt($('minSizeMB').value, 10) || 0),
@@ -178,6 +187,7 @@ async function checkConnection() {
 
 form.addEventListener('input', markDirty);
 form.addEventListener('change', (event) => {
+  if (event.target.id === 'privacyConsent') syncConsent();
   if (event.target.matches('input[type="radio"]')) syncRuleDetails();
   markDirty();
 });

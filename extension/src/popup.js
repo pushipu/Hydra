@@ -82,7 +82,7 @@ async function render() {
   document.getElementById('connectionText').textContent = connected ? 'Подключена' : 'Не запущена';
 
   const auto = document.getElementById('autoValue');
-  auto.textContent = settings.enabled ? 'Включён' : 'Выключен';
+  auto.textContent = settings.privacyConsent ? (settings.enabled ? 'Включён' : 'Выключен') : 'Нужно разрешение';
   auto.className = `setting-value ${settings.enabled ? 'on' : 'off'}`;
   document.getElementById('sizeValue').textContent = settings.minSizeMB ? `От ${settings.minSizeMB} МБ` : 'Любой размер';
   const domains = document.getElementById('domainsValue');

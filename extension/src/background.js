@@ -74,6 +74,7 @@ async function captureSession(url, referrer) {
 
 async function sendToHydra({ url, filename, referrer, source }) {
   const settings = await HydraRules.loadSettings();
+  if (!settings.privacyConsent) return;
   const session = await captureSession(url, referrer);
   const transfer = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -137,6 +138,11 @@ api.contextMenus.onClicked.addListener(async (info) => {
   if (info.menuItemId !== CONTEXT_MENU_ID) return;
   const url = info.linkUrl || info.srcUrl;
   if (!url) return;
+  const settings = await HydraRules.loadSettings();
+  if (!settings.privacyConsent) {
+    try { await api.runtime.openOptionsPage(); } catch {}
+    return;
+  }
   await sendToHydra({ url, referrer: info.pageUrl, source: 'menu' });
 });
 
@@ -151,7 +157,7 @@ async function init() {
 api.runtime.onInstalled.addListener(init);
 api.runtime.onStartup?.addListener(init);
 api.storage.onChanged.addListener((changes, area) => {
-  if (area === 'sync' && changes.settings) {
+  if (area === 'local' && changes.settings) {
     const settings = changes.settings.newValue || {};
     void setupContextMenu(settings.contextMenuEnabled ?? true);
     updateActionIcon(settings.enabled ?? true);

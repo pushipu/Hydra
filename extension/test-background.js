@@ -36,7 +36,7 @@ const chrome = {
 const context = {
   chrome, console, navigator: { userAgent: 'Hydra test' }, URL,
   HydraRules: {
-    loadSettings: async () => ({ connections: 8, contextMenuEnabled: true, enabled: true }),
+    loadSettings: async () => ({ privacyConsent: true, connections: 8, contextMenuEnabled: true, enabled: true }),
     shouldIntercept: () => true,
   },
   HydraNative: {
@@ -49,7 +49,7 @@ vm.runInContext(fs.readFileSync('extension/src/background.js', 'utf8'), context)
 (async () => {
   await onInstalled();
   assert.equal(actionIcon[16], 'icons/icon16.png');
-  onStorageChanged({ settings: { newValue: { enabled: false, contextMenuEnabled: true } } }, 'sync');
+  onStorageChanged({ settings: { newValue: { enabled: false, contextMenuEnabled: true } } }, 'local');
   assert.equal(actionIcon[16], 'icons/icon16-disabled.png');
 
   await onCreated({

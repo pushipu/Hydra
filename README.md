@@ -160,8 +160,8 @@ docs/             ARCHITECTURE.md, SAFARI_SETUP.md, USAGE.md, screenshots/
 
 ## Browser extension
 
-A thin layer: captures the session, intercepts links, shows the pairing status
-with the app and the list of current downloads. The logic and UI live in the app.
+A thin layer: captures the session with explicit consent, intercepts links, shows
+the pairing status and a short local transfer log. Download management lives in the app.
 Capture settings (auto-capture, min size, file types, threads) have a single
 source of truth in the app; the extension reads them through the host.
 
@@ -178,15 +178,15 @@ and replays them on every parallel connection, so the server sees your authentic
 Chrome, Brave, Edge and Firefox via extensions. Safari needs a manual setup for now.
 
 **Is it safe? What does the extension read?**
-It reads cookies only to pass your existing session to the downloader. Nothing is sent
-anywhere except to the file's own server — there is no telemetry.
+It reads cookies only to pass your existing session to Hydra on the same Mac. There is
+no telemetry or developer-operated data server. See the [Privacy Policy](PRIVACY.md).
 
 **Does pause/resume survive a restart?**
 Yes. The done-blocks bitmap is persisted to disk, so you can quit mid-download and continue later.
 
 **macOS says the app "cannot be opened" — why?**
-It's ad-hoc signed and not notarized yet. Right-click the app → **Open**, or install via
-Homebrew with `--no-quarantine`.
+Current GitHub releases are signed with Developer ID and notarized by Apple. Make sure
+you downloaded an unmodified release from this repository.
 
 ## License
 

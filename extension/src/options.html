@@ -177,6 +177,38 @@
       text-wrap: pretty;
     }
 
+    .privacy-consent {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 11px;
+      margin: 0 22px 18px;
+      padding: 14px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      cursor: pointer;
+    }
+
+    .privacy-consent input {
+      width: 18px;
+      height: 18px;
+      margin: 2px 0 0;
+      accent-color: var(--accent);
+    }
+
+    .privacy-consent strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .privacy-consent span {
+      display: block;
+      margin-top: 3px;
+      color: var(--label-secondary);
+      font-size: 12.5px;
+      text-wrap: pretty;
+    }
+
     .settings-list { border-top: .5px solid var(--separator); }
 
     .setting-row {
@@ -254,6 +286,7 @@
     }
 
     .switch input:checked + .switch-track { background: var(--accent); }
+    .switch input:disabled + .switch-track { opacity: .42; cursor: default; }
     .switch input:checked + .switch-track::after { transform: translateX(16px); }
     .switch input:focus-visible + .switch-track { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
     .switch:active .switch-track { scale: .96; }
@@ -497,7 +530,7 @@
       </span>
       <div class="title-group">
         <h1>Настройки расширения</h1>
-        <p>Как Chrome находит загрузки и передаёт их в Hydra.</p>
+        <p>Как браузер находит загрузки и передаёт их в Hydra.</p>
       </div>
       <div class="connection" id="connection" role="status" aria-live="polite">
         <span class="connection-dot" aria-hidden="true"></span>
@@ -515,15 +548,23 @@
           </span>
           <div>
             <h2 id="captureTitle">Перехват загрузок</h2>
-            <p>Базовое поведение расширения в Chrome.</p>
+            <p>Базовое поведение расширения в браузере.</p>
           </div>
         </header>
+
+        <label class="privacy-consent" for="privacyConsent">
+          <input type="checkbox" id="privacyConsent" />
+          <span>
+            <strong>Разрешить локальную передачу данных</strong>
+            <span>Для выбранных загрузок расширение передаёт приложению Hydra на этом Mac адрес, имя файла, cookies, Referer и User-Agent. Данные не отправляются разработчику или сторонним серверам.</span>
+          </span>
+        </label>
 
         <div class="settings-list">
           <label class="setting-row" for="enabled">
             <span class="setting-copy">
               <span class="setting-title">Перехватывать автоматически</span>
-              <span class="setting-description">Обычная загрузка Chrome будет передана в Hydra.</span>
+              <span class="setting-description">Обычная загрузка браузера будет передана в Hydra.</span>
             </span>
             <span class="switch">
               <input type="checkbox" id="enabled" />
@@ -556,7 +597,7 @@
           <div class="setting-row">
             <div class="setting-copy">
               <label class="setting-title" for="minSizeMB">Минимальный размер файла</label>
-              <span class="setting-description" id="minSizeHint">Мелкие файлы продолжит скачивать Chrome. 0 — без ограничения.</span>
+              <span class="setting-description" id="minSizeHint">Мелкие файлы продолжит скачивать браузер. 0 — без ограничения.</span>
             </div>
             <div class="number-field">
               <input type="number" id="minSizeMB" min="0" inputmode="numeric" aria-describedby="minSizeHint" />
