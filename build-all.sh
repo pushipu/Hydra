@@ -7,6 +7,7 @@
 #   Hydra.app            — приложение (host вложен внутрь, сам регистрируется)
 #   chrome/              — папка для «Загрузить распакованное» (chrome://extensions)
 #   hydra-chrome.zip     — то же, упаковано
+#   hydra-chrome-store.zip — пакет без manifest.key для Chrome Web Store
 #   hydra-firefox.xpi    — установка через about:debugging или подписанный AMO
 #
 # Связка app↔расширение происходит сама: при первом запуске Hydra.app пишет
@@ -28,10 +29,10 @@ echo "▸ Версия: $VERSION (build $BUILD)"
 KEY=$(python3 -c "import json,sys; print(json.load(open('$EXT/manifest.chrome.json'))['key'])")
 DERIVED=$(printf '%s' "$KEY" | base64 -D 2>/dev/null | openssl dgst -sha256 -binary | python3 -c "
 import sys; b=sys.stdin.buffer.read()[:16]; print(''.join(chr(ord('a')+int(c,16)) for c in b.hex()))")
-BAKED=$(grep -oE 'chromeExtensionID = \"[a-p]{32}\"' "$ROOT/core/Sources/HydraApp/HostRegistrar.swift" | grep -oE '[a-p]{32}')
+BAKED=$(grep -oE 'chromeDevelopmentExtensionID = \"[a-p]{32}\"' "$ROOT/core/Sources/HydraApp/HostRegistrar.swift" | grep -oE '[a-p]{32}')
 if [ "$DERIVED" != "$BAKED" ]; then
   echo "✗ Рассинхрон Chrome id: manifest.key→$DERIVED, а в HostRegistrar.swift вшит $BAKED" >&2
-  echo "  Обнови chromeExtensionID в HostRegistrar.swift на $DERIVED." >&2
+  echo "  Обнови chromeDevelopmentExtensionID в HostRegistrar.swift на $DERIVED." >&2
   exit 1
 fi
 echo "▸ Chrome extension id: $DERIVED ✓"
@@ -89,12 +90,19 @@ echo "▸ Пакет Chrome…"
 pack manifest.chrome.json "$DIST/chrome"
 ( cd "$DIST/chrome" && zip -qr "$DIST/hydra-chrome.zip" . )
 
+echo "▸ Пакет Chrome Web Store…"
+rm -rf "$DIST/chrome-store"
+cp -R "$DIST/chrome" "$DIST/chrome-store"
+python3 -c 'import json,sys; p=sys.argv[1]; d=json.load(open(p)); d.pop("key", None); open(p, "w").write(json.dumps(d, ensure_ascii=False, indent=2) + "\n")' "$DIST/chrome-store/manifest.json"
+( cd "$DIST/chrome-store" && zip -qr "$DIST/hydra-chrome-store.zip" . )
+rm -rf "$DIST/chrome-store"
+
 echo "▸ Пакет Firefox…"
 pack manifest.firefox.json "$DIST/firefox"
 ( cd "$DIST/firefox" && zip -qr "$DIST/hydra-firefox.xpi" . )
 rm -rf "$DIST/firefox"
 
-( cd "$DIST" && shasum -a 256 "Hydra-$VERSION-macos.zip" hydra-chrome.zip hydra-firefox.xpi > SHA256SUMS )
+( cd "$DIST" && shasum -a 256 "Hydra-$VERSION-macos.zip" hydra-chrome.zip hydra-chrome-store.zip hydra-firefox.xpi > SHA256SUMS )
 
 cat <<EOF
 
@@ -103,6 +111,7 @@ cat <<EOF
   Hydra-$VERSION-macos.zip → архив приложения для GitHub Release
   chrome/            → chrome://extensions → Режим разработчика → Загрузить распакованное
   hydra-chrome.zip   → то же, в архиве
+  hydra-chrome-store.zip → загрузка в Chrome Web Store (без запрещённого manifest.key)
   hydra-firefox.xpi  → about:debugging → Загрузить временное дополнение (или подпиши в AMO)
   SHA256SUMS         → контрольные суммы релизных файлов
 

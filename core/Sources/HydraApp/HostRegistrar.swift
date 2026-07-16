@@ -5,14 +5,13 @@ import Foundation
 /// его каталоге NativeMessagingHosts лежит манифест, указывающий на бинарь.
 /// Hydra.app пишет эти манифесты сам, указывая на host, вложенный в .app.
 ///
-/// Chrome/Brave/Edge используют один и тот же extension id, потому что он
-/// детерминированно выводится из `key` в manifest.chrome.json (см. ниже).
+/// Chrome/Brave/Edge используют id распакованной сборки из `key` либо id,
+/// назначенный Chrome Web Store. Оба разрешены, чтобы работали dev и store.
 /// Firefox опознаёт расширение по gecko-id из манифеста.
 enum HostRegistrar {
-    /// Детерминированный id Chrome-расширения, выведенный из публичного ключа в
-    /// extension/manifest.chrome.json. Меняешь ключ — обнови и это значение
-    /// (./build-all.sh печатает актуальный id при сборке).
-    static let chromeExtensionID = "hfdmeoleepighofjiookfjcjekoopaim"
+    static let chromeDevelopmentExtensionID = "hfdmeoleepighofjiookfjcjekoopaim"
+    static let chromeStoreExtensionID = "dojlcfoidgkebgiadlphnogbgcnkhdpa"
+    private static let chromeExtensionIDs = [chromeDevelopmentExtensionID, chromeStoreExtensionID]
     static let firefoxExtensionID = "hydra@pushipu.github.io"
     static let hostName = "com.hydra.host"
 
@@ -56,7 +55,7 @@ enum HostRegistrar {
                 "type": "stdio",
             ]
             if t.chromeStyle {
-                manifest["allowed_origins"] = ["chrome-extension://\(chromeExtensionID)/"]
+                manifest["allowed_origins"] = chromeExtensionIDs.map { "chrome-extension://\($0)/" }
             } else {
                 manifest["allowed_extensions"] = [firefoxExtensionID]
             }

@@ -133,7 +133,8 @@ Requires the Xcode/Swift toolchain and `rsvg` (for icons: `brew install librsvg`
 ```
 
 Drops into `dist/`: `Hydra.app` (host embedded, self-registering), `chrome/`
-(unpacked extension), `hydra-chrome.zip`, `hydra-firefox.xpi`.
+(unpacked extension), `hydra-chrome.zip`, `hydra-chrome-store.zip` (without the
+store-forbidden manifest key), and `hydra-firefox.xpi`.
 
 Version is single-sourced from the `VERSION` file: the build stamps it into the
 app's `Info.plist` and every extension manifest (`CFBundleVersion` = git commit
