@@ -128,7 +128,7 @@ private let table: [String: [String: String]] = [
     "Потоков на файл":         ["en": "Threads per file", "zh": "每文件线程数"],
     "Скорость":                ["en": "Speed", "zh": "速度"],
     "Ограничивать скорость":   ["en": "Limit speed", "zh": "限制速度"],
-    "Перехват из браузера":    ["en": "Browser capture", "zh": "浏览器拦截"],
+    "Перехват загрузок":       ["en": "Download capture", "zh": "下载拦截"],
     "Перехватывать автоматически": ["en": "Capture automatically", "zh": "自动拦截"],
     "Минимальный размер файла": ["en": "Minimum file size", "zh": "最小文件大小"],
     "Типы файлов":             ["en": "File types", "zh": "文件类型"],

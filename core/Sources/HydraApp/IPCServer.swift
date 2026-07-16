@@ -1,6 +1,10 @@
 import Foundation
 import DownloadCore
 
+extension Notification.Name {
+    static let hydraOpenMain = Notification.Name("HydraOpenMain")
+}
+
 /// Факт связки с браузерным расширением: хост шлёт «hello» при пинге из попапа.
 /// Используется онбордингом/настройками для живой проверки «расширение связано».
 @MainActor final class Pairing: ObservableObject {
@@ -58,6 +62,20 @@ class IPCServer {
                 guard let msg = try? JSONSerialization.jsonObject(with: line) as? [String: Any] else { continue }
                 // «hello» — пинг попапа расширения через host: фиксируем связку.
                 if msg["type"] as? String == "hello" { await MainActor.run { Pairing.shared.markSeen() }; continue }
+                if msg["type"] as? String == "openMain" {
+                    await MainActor.run { NotificationCenter.default.post(name: .hydraOpenMain, object: nil) }
+                    continue
+                }
+                if msg["type"] as? String == "setSettings" {
+                    let auto = msg["autoIntercept"] as? Bool
+                    let minSize = (msg["minSizeMB"] as? NSNumber)?.intValue
+                    let threads = (msg["threadsPerFile"] as? NSNumber)?.intValue
+                    await MainActor.run {
+                        AppSettings.shared.applyInterceptSettings(
+                            autoIntercept: auto, minSizeMB: minSize, threadsPerFile: threads)
+                    }
+                    continue
+                }
                 guard msg["type"] as? String == "download",
                       let urlString = msg["url"] as? String, let url = URL(string: urlString) else { continue }
                 let session = SessionContext(
@@ -77,5 +95,3 @@ class IPCServer {
         try? fh.close()
     }
 }
-
-

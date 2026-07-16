@@ -65,6 +65,12 @@ enum CompletionAction: String, CaseIterable, Identifiable {
         queue.defaultConnections = threadsPerFile
     }
 
+    func applyInterceptSettings(autoIntercept: Bool?, minSizeMB: Int?, threadsPerFile: Int?) {
+        if let autoIntercept { self.autoIntercept = autoIntercept }
+        if let minSizeMB { self.minSizeMB = max(0, minSizeMB) }
+        if let threadsPerFile { self.threadsPerFile = min(32, max(1, threadsPerFile)) }
+    }
+
     var defaultDestURL: URL { URL(fileURLWithPath: defaultDestPath, isDirectory: true) }
 
     private func applyRate() {

@@ -12,7 +12,7 @@
   ],
   "host_permissions": ["<all_urls>"],
   "background": {
-    "scripts": ["src/rules.js", "src/background.js"]
+    "scripts": ["src/native.js", "src/rules.js", "src/background.js"]
   },
   "options_ui": {
     "page": "src/options.html",
@@ -28,8 +28,15 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "hydra@local.dev",
-      "strict_min_version": "115.0"
+      "id": "hydra@pushipu.github.io",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": ["browsingActivity", "websiteContent", "websiteActivity"],
+        "optional": ["technicalAndInteraction"]
+      }
+    },
+    "gecko_android": {
+      "strict_min_version": "142.0"
     }
   },
   "icons": {

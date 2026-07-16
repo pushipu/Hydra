@@ -20,6 +20,7 @@ final class StatusBarController: NSObject, NSWindowDelegate {
     init(queue: DownloadQueue) {
         self.queue = queue
         super.init()
+        NotificationCenter.default.addObserver(self, selector: #selector(openMain), name: .hydraOpenMain, object: nil)
 
         popover.behavior = .transient
         // Размер диктует SwiftUI-контент (адаптивная высота под детальный экран,

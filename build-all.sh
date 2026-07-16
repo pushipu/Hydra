@@ -36,6 +36,14 @@ if [ "$DERIVED" != "$BAKED" ]; then
 fi
 echo "▸ Chrome extension id: $DERIVED ✓"
 
+FIREFOX_ID=$(python3 -c "import json; print(json.load(open('$EXT/manifest.firefox.json'))['browser_specific_settings']['gecko']['id'])")
+BAKED_FIREFOX=$(grep -oE 'firefoxExtensionID = "[^"]+"' "$ROOT/core/Sources/HydraApp/HostRegistrar.swift" | cut -d'"' -f2)
+if [ "$FIREFOX_ID" != "$BAKED_FIREFOX" ]; then
+  echo "✗ Рассинхрон Firefox id: manifest→$FIREFOX_ID, HostRegistrar→$BAKED_FIREFOX" >&2
+  exit 1
+fi
+echo "▸ Firefox extension id: $FIREFOX_ID ✓"
+
 # --- 1. Приложение (вкладывает host + само-регистрация). ---
 echo "▸ Сборка Hydra.app…"
 "$ROOT/app/build.sh"
@@ -64,6 +72,9 @@ if [ -n "${HYDRA_NOTARY_PROFILE:-}" ]; then
 else
   echo "▸ Нотаризация пропущена (HYDRA_NOTARY_PROFILE не задан) — .app только для своей машины."
 fi
+APP_ZIP="$DIST/Hydra-$VERSION-macos.zip"
+rm -f "$APP_ZIP"
+ditto -c -k --keepParent "$DIST/Hydra.app" "$APP_ZIP"
 
 # --- 2. Расширения: общий src + иконки, разные манифесты. ---
 pack() { # <target-manifest> <staging-dir>
@@ -83,13 +94,17 @@ pack manifest.firefox.json "$DIST/firefox"
 ( cd "$DIST/firefox" && zip -qr "$DIST/hydra-firefox.xpi" . )
 rm -rf "$DIST/firefox"
 
+( cd "$DIST" && shasum -a 256 "Hydra-$VERSION-macos.zip" hydra-chrome.zip hydra-firefox.xpi > SHA256SUMS )
+
 cat <<EOF
 
 ✓ Готово. dist/:
   Hydra.app          → перетащи в /Applications и запусти (один раз)
+  Hydra-$VERSION-macos.zip → архив приложения для GitHub Release
   chrome/            → chrome://extensions → Режим разработчика → Загрузить распакованное
   hydra-chrome.zip   → то же, в архиве
   hydra-firefox.xpi  → about:debugging → Загрузить временное дополнение (или подпиши в AMO)
+  SHA256SUMS         → контрольные суммы релизных файлов
 
 Связывать вручную ничего не нужно: app сам прописал host во все браузеры.
 EOF

@@ -2,63 +2,646 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
-  <title>Hydra — настройки</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hydra — настройки расширения</title>
   <style>
-    body { font: 14px -apple-system, system-ui, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; color: #1d1d1f; }
-    h1 { font-size: 20px; }
-    fieldset { border: 1px solid #ddd; border-radius: 8px; margin: 16px 0; padding: 12px 16px; }
-    legend { font-weight: 600; padding: 0 6px; }
-    label { display: block; margin: 8px 0; }
-    input[type="number"], select, textarea { font: inherit; padding: 4px 6px; border: 1px solid #ccc; border-radius: 6px; }
-    textarea { width: 100%; height: 64px; box-sizing: border-box; }
-    .row { display: flex; align-items: center; gap: 8px; }
-    button { font: inherit; padding: 8px 16px; border-radius: 8px; border: none; background: #0071e3; color: #fff; cursor: pointer; }
-    #status { margin-left: 12px; color: #34a853; }
-    small { color: #6e6e73; }
+    :root {
+      color-scheme: light dark;
+      --canvas: #f3f5f7;
+      --surface: rgba(255, 255, 255, .92);
+      --surface-solid: #fff;
+      --fill: rgba(18, 28, 38, .055);
+      --fill-hover: rgba(18, 28, 38, .085);
+      --label: #19212a;
+      --label-secondary: #68737e;
+      --separator: rgba(18, 28, 38, .08);
+      --accent: #0a84ff;
+      --accent-soft: rgba(10, 132, 255, .12);
+      --success: #20865c;
+      --danger: #c23b3b;
+      --shadow-card:
+        0 0 0 1px rgba(0, 0, 0, .05),
+        0 1px 2px -1px rgba(0, 0, 0, .06),
+        0 12px 32px -18px rgba(28, 39, 51, .22);
+      --shadow-control:
+        0 0 0 1px rgba(0, 0, 0, .06),
+        0 1px 2px rgba(0, 0, 0, .05);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --canvas: #17191c;
+        --surface: rgba(38, 40, 44, .94);
+        --surface-solid: #26282c;
+        --fill: rgba(255, 255, 255, .07);
+        --fill-hover: rgba(255, 255, 255, .11);
+        --label: #f4f5f7;
+        --label-secondary: #a2a8b0;
+        --separator: rgba(255, 255, 255, .09);
+        --accent: #409cff;
+        --accent-soft: rgba(64, 156, 255, .16);
+        --success: #56c995;
+        --danger: #ff7979;
+        --shadow-card: 0 0 0 1px rgba(255, 255, 255, .08);
+        --shadow-control: 0 0 0 1px rgba(255, 255, 255, .1);
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-width: 320px;
+      background: var(--canvas);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      margin: 0;
+      color: var(--label);
+      font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input { font: inherit; }
+    button, label { -webkit-tap-highlight-color: transparent; }
+    [hidden] { display: none !important; }
+
+    .page {
+      width: min(760px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 48px 0 64px;
+    }
+
+    .page-header {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 16px;
+      margin: 0 2px 28px;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      color: #fff;
+      background: var(--accent);
+      box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--accent) 80%, transparent);
+    }
+
+    .brand-mark svg { width: 25px; height: 25px; }
+
+    .title-group h1 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -.025em;
+      text-wrap: balance;
+    }
+
+    .title-group p {
+      margin: 3px 0 0;
+      color: var(--label-secondary);
+      font-size: 13.5px;
+      text-wrap: pretty;
+    }
+
+    .connection {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 32px;
+      padding: 0 11px;
+      border-radius: 16px;
+      color: var(--label-secondary);
+      background: var(--fill);
+      font-size: 12.5px;
+      font-weight: 550;
+      white-space: nowrap;
+    }
+
+    .connection-dot {
+      width: 7px;
+      height: 7px;
+      border: 1.5px solid currentColor;
+      border-radius: 50%;
+    }
+
+    .connection.connected { color: var(--success); }
+    .connection.connected .connection-dot { border: 0; background: currentColor; }
+    .connection.disconnected { color: var(--danger); }
+
+    .card {
+      margin-top: 16px;
+      overflow: hidden;
+      border-radius: 20px;
+      background: var(--surface);
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(20px);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 19px 22px 16px;
+    }
+
+    .section-icon {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .section-icon svg { width: 17px; height: 17px; }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 650;
+      letter-spacing: -.008em;
+      text-wrap: balance;
+    }
+
+    .section-header p {
+      margin: 2px 0 0;
+      color: var(--label-secondary);
+      font-size: 12.5px;
+      text-wrap: pretty;
+    }
+
+    .settings-list { border-top: .5px solid var(--separator); }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      min-height: 66px;
+      margin: 0 22px;
+      padding: 12px 0;
+    }
+
+    .setting-row + .setting-row { border-top: .5px solid var(--separator); }
+
+    .setting-copy { min-width: 0; }
+
+    .setting-title {
+      display: block;
+      margin: 0;
+      color: var(--label);
+      font-size: 14px;
+      font-weight: 580;
+    }
+
+    .setting-description {
+      display: block;
+      margin-top: 2px;
+      color: var(--label-secondary);
+      font-size: 12.5px;
+      text-wrap: pretty;
+    }
+
+    .switch {
+      position: relative;
+      display: grid;
+      place-items: center;
+      flex: 0 0 44px;
+      width: 44px;
+      height: 44px;
+      cursor: pointer;
+    }
+
+    .switch input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .switch-track {
+      position: relative;
+      width: 38px;
+      height: 22px;
+      border-radius: 11px;
+      background: color-mix(in srgb, var(--label-secondary) 26%, transparent);
+      transition-property: background-color, scale;
+      transition-duration: 160ms;
+      transition-timing-function: cubic-bezier(.2, 0, 0, 1);
+    }
+
+    .switch-track::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .22);
+      transition-property: transform;
+      transition-duration: 180ms;
+      transition-timing-function: cubic-bezier(.2, 0, 0, 1);
+    }
+
+    .switch input:checked + .switch-track { background: var(--accent); }
+    .switch input:checked + .switch-track::after { transform: translateX(16px); }
+    .switch input:focus-visible + .switch-track { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
+    .switch:active .switch-track { scale: .96; }
+
+    .number-field {
+      display: flex;
+      align-items: center;
+      flex: 0 0 auto;
+      height: 38px;
+      padding: 0 11px;
+      border-radius: 10px;
+      background: var(--surface-solid);
+      box-shadow: var(--shadow-control);
+    }
+
+    .number-field:focus-within { outline: 3px solid var(--accent-soft); }
+
+    .number-field input {
+      width: 42px;
+      padding: 0;
+      border: 0;
+      outline: 0;
+      color: var(--label);
+      background: transparent;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+
+    .number-field input::-webkit-inner-spin-button { opacity: .55; }
+
+    .number-field span {
+      margin-left: 6px;
+      color: var(--label-secondary);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .rule-body {
+      padding: 0 22px 20px;
+      border-top: .5px solid var(--separator);
+    }
+
+    .mode-control {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3px;
+      margin-top: 16px;
+      padding: 3px;
+      border-radius: 12px;
+      background: var(--fill);
+    }
+
+    .mode-option { position: relative; min-width: 0; cursor: pointer; }
+
+    .mode-option input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .mode-option span {
+      display: grid;
+      place-items: center;
+      min-height: 40px;
+      padding: 0 10px;
+      border-radius: 9px;
+      color: var(--label-secondary);
+      font-size: 12.5px;
+      font-weight: 560;
+      text-align: center;
+      white-space: nowrap;
+      transition-property: color, background-color, box-shadow, scale;
+      transition-duration: 150ms;
+      transition-timing-function: ease-out;
+    }
+
+    .mode-option:hover span { color: var(--label); }
+    .mode-option:active span { scale: .96; }
+    .mode-option input:checked + span {
+      color: var(--label);
+      background: var(--surface-solid);
+      box-shadow: var(--shadow-control);
+    }
+    .mode-option input:focus-visible + span { outline: 3px solid var(--accent-soft); }
+
+    .rule-details { margin-top: 18px; }
+
+    .field-label {
+      margin: 0 0 8px;
+      color: var(--label);
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .token-field {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      min-height: 48px;
+      padding: 6px;
+      border-radius: 12px;
+      background: var(--surface-solid);
+      box-shadow: var(--shadow-control);
+      cursor: text;
+    }
+
+    .token-field:focus-within { outline: 3px solid var(--accent-soft); }
+
+    .tokens { display: contents; }
+
+    .token {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 34px;
+      padding: 0 5px 0 10px;
+      border: 0;
+      border-radius: 8px;
+      color: var(--label);
+      background: var(--accent-soft);
+      font-size: 12.5px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .token button {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      border-radius: 7px;
+      color: var(--label-secondary);
+      background: transparent;
+      cursor: pointer;
+      transition-property: color, background-color, scale;
+      transition-duration: 140ms;
+      transition-timing-function: ease-out;
+    }
+
+    .token button:hover { color: var(--label); background: var(--fill-hover); }
+    .token button:active { scale: .96; }
+    .token button:focus-visible { outline: 2px solid var(--accent); outline-offset: -1px; }
+    .token button svg { width: 11px; height: 11px; }
+
+    .token-entry {
+      flex: 1 1 160px;
+      min-width: 120px;
+      min-height: 34px;
+      padding: 0 7px;
+      border: 0;
+      outline: 0;
+      color: var(--label);
+      background: transparent;
+    }
+
+    .token-entry::placeholder { color: var(--label-secondary); opacity: .72; }
+
+    .field-hint {
+      margin: 8px 1px 0;
+      color: var(--label-secondary);
+      font-size: 12px;
+      text-wrap: pretty;
+    }
+
+    .action-bar {
+      position: sticky;
+      bottom: 18px;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      min-height: 58px;
+      margin-top: 18px;
+      padding: 9px 10px 9px 18px;
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--surface-solid) 88%, transparent);
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(24px);
+    }
+
+    .save-copy { min-width: 0; }
+
+    #status {
+      display: block;
+      color: var(--label-secondary);
+      font-size: 12.5px;
+      text-wrap: pretty;
+    }
+
+    #status.saved { color: var(--success); }
+    #status.error { color: var(--danger); }
+
+    .save-button {
+      flex: 0 0 auto;
+      min-width: 112px;
+      min-height: 40px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 10px;
+      color: #fff;
+      background: var(--accent);
+      box-shadow: 0 6px 16px -10px color-mix(in srgb, var(--accent) 85%, transparent);
+      font-weight: 620;
+      cursor: pointer;
+      transition-property: filter, opacity, scale;
+      transition-duration: 150ms;
+      transition-timing-function: ease-out;
+    }
+
+    .save-button:hover:not(:disabled) { filter: brightness(1.06); }
+    .save-button:active:not(:disabled) { scale: .96; }
+    .save-button:focus-visible { outline: 3px solid var(--accent-soft); outline-offset: 2px; }
+    .save-button:disabled { opacity: .42; cursor: default; }
+
+    @media (max-width: 620px) {
+      .page { padding-top: 28px; }
+      .page-header { grid-template-columns: auto minmax(0, 1fr); }
+      .connection { grid-column: 1 / -1; justify-self: start; margin-left: 64px; }
+      .setting-row { align-items: flex-start; gap: 14px; }
+      .mode-control { grid-template-columns: 1fr; }
+      .mode-option span { justify-content: start; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0ms !important; }
+    }
   </style>
 </head>
 <body>
-  <h1>Hydra Download Manager</h1>
+  <main class="page">
+    <header class="page-header">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M12 3.5v10M6.8 9.7 12 14.9l5.2-5.2M6 20h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </span>
+      <div class="title-group">
+        <h1>Настройки расширения</h1>
+        <p>Как Chrome находит загрузки и передаёт их в Hydra.</p>
+      </div>
+      <div class="connection" id="connection" role="status" aria-live="polite">
+        <span class="connection-dot" aria-hidden="true"></span>
+        <span id="connectionText">Проверяем подключение…</span>
+      </div>
+    </header>
 
-  <fieldset>
-    <legend>Основное</legend>
-    <label class="row"><input type="checkbox" id="enabled" /> Авто-перехват загрузок</label>
-    <label class="row"><input type="checkbox" id="contextMenuEnabled" /> Пункт «Download with Hydra» в контекстном меню</label>
-    <label class="row">Потоков на файл: <input type="number" id="connections" min="1" max="32" /></label>
-    <label class="row">Не перехватывать файлы мельче (МБ): <input type="number" id="minSizeMB" min="0" /> <small>0 = любые</small></label>
-  </fieldset>
+    <form id="settings">
+      <section class="card" aria-labelledby="captureTitle">
+        <header class="section-header">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="none">
+              <path d="M10 2.5v8M6.5 7.5 10 11l3.5-3.5M5 15.5h10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <div>
+            <h2 id="captureTitle">Перехват загрузок</h2>
+            <p>Базовое поведение расширения в Chrome.</p>
+          </div>
+        </header>
 
-  <fieldset>
-    <legend>Домены</legend>
-    <label class="row">Режим:
-      <select id="domainMode">
-        <option value="all">Все домены</option>
-        <option value="whitelist">Только из списка (whitelist)</option>
-        <option value="blacklist">Все, кроме списка (blacklist)</option>
-      </select>
-    </label>
-    <small>По одному домену на строку (например <code>example.com</code> — включает поддомены).</small>
-    <textarea id="domainList" placeholder="example.com&#10;cdn.site.org"></textarea>
-  </fieldset>
+        <div class="settings-list">
+          <label class="setting-row" for="enabled">
+            <span class="setting-copy">
+              <span class="setting-title">Перехватывать автоматически</span>
+              <span class="setting-description">Обычная загрузка Chrome будет передана в Hydra.</span>
+            </span>
+            <span class="switch">
+              <input type="checkbox" id="enabled" />
+              <span class="switch-track" aria-hidden="true"></span>
+            </span>
+          </label>
 
-  <fieldset>
-    <legend>Типы файлов</legend>
-    <label class="row">Режим:
-      <select id="extensionMode">
-        <option value="all">Все типы</option>
-        <option value="only">Только перечисленные</option>
-        <option value="except">Все, кроме перечисленных</option>
-      </select>
-    </label>
-    <small>Расширения без точки, через запятую или пробел.</small>
-    <textarea id="extensionList" placeholder="zip dmg iso mp4 mkv pdf"></textarea>
-  </fieldset>
+          <label class="setting-row" for="contextMenuEnabled">
+            <span class="setting-copy">
+              <span class="setting-title">Пункт в контекстном меню</span>
+              <span class="setting-description">Добавить «Download with Hydra» для ссылок и медиа.</span>
+            </span>
+            <span class="switch">
+              <input type="checkbox" id="contextMenuEnabled" />
+              <span class="switch-track" aria-hidden="true"></span>
+            </span>
+          </label>
 
-  <div class="row">
-    <button id="save">Сохранить</button>
-    <span id="status"></span>
-  </div>
+          <div class="setting-row">
+            <div class="setting-copy">
+              <label class="setting-title" for="connections">Потоков на файл</label>
+              <span class="setting-description" id="connectionsHint">Больше потоков не всегда означает быстрее.</span>
+            </div>
+            <div class="number-field">
+              <input type="number" id="connections" min="1" max="32" inputmode="numeric" aria-describedby="connectionsHint" />
+              <span>потоков</span>
+            </div>
+          </div>
 
+          <div class="setting-row">
+            <div class="setting-copy">
+              <label class="setting-title" for="minSizeMB">Минимальный размер файла</label>
+              <span class="setting-description" id="minSizeHint">Мелкие файлы продолжит скачивать Chrome. 0 — без ограничения.</span>
+            </div>
+            <div class="number-field">
+              <input type="number" id="minSizeMB" min="0" inputmode="numeric" aria-describedby="minSizeHint" />
+              <span>МБ</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="domainsTitle">
+        <header class="section-header">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="none">
+              <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M3.2 10h13.6M10 3c2 2 3 4.3 3 7s-1 5-3 7c-2-2-3-4.3-3-7s1-5 3-7Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <div>
+            <h2 id="domainsTitle">Сайты</h2>
+            <p>Ограничьте перехват для отдельных доменов.</p>
+          </div>
+        </header>
+
+        <div class="rule-body">
+          <div class="mode-control" role="radiogroup" aria-label="Режим для сайтов">
+            <label class="mode-option"><input type="radio" name="domainMode" value="all" checked /><span>Все сайты</span></label>
+            <label class="mode-option"><input type="radio" name="domainMode" value="whitelist" /><span>Только выбранные</span></label>
+            <label class="mode-option"><input type="radio" name="domainMode" value="blacklist" /><span>Кроме выбранных</span></label>
+          </div>
+
+          <div class="rule-details" id="domainDetails" hidden>
+            <p class="field-label">Домены</p>
+            <div class="token-field" id="domainField">
+              <div class="tokens" id="domainTokens"></div>
+              <input class="token-entry" id="domainEntry" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="example.com" aria-label="Добавить домен" />
+            </div>
+            <input type="hidden" id="domainList" />
+            <p class="field-hint">Введите домен и нажмите Enter. Поддомены учитываются автоматически.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="typesTitle">
+        <header class="section-header">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="none">
+              <path d="M5.5 2.8h5.2l3.8 3.8v10.6H5.5V2.8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M10.5 3v4h3.8M7.8 11h4.4M7.8 14h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <div>
+            <h2 id="typesTitle">Типы файлов</h2>
+            <p>Фильтр по расширению файла в адресе загрузки.</p>
+          </div>
+        </header>
+
+        <div class="rule-body">
+          <div class="mode-control" role="radiogroup" aria-label="Режим для типов файлов">
+            <label class="mode-option"><input type="radio" name="extensionMode" value="all" checked /><span>Все типы</span></label>
+            <label class="mode-option"><input type="radio" name="extensionMode" value="only" /><span>Только выбранные</span></label>
+            <label class="mode-option"><input type="radio" name="extensionMode" value="except" /><span>Кроме выбранных</span></label>
+          </div>
+
+          <div class="rule-details" id="extensionDetails" hidden>
+            <p class="field-label">Расширения</p>
+            <div class="token-field" id="extensionField">
+              <div class="tokens" id="extensionTokens"></div>
+              <input class="token-entry" id="extensionEntry" type="text" autocomplete="off" spellcheck="false" placeholder="dmg, zip, iso" aria-label="Добавить расширение файла" />
+            </div>
+            <input type="hidden" id="extensionList" />
+            <p class="field-hint">Без точки. Можно вставить сразу несколько значений через запятую.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="action-bar">
+        <div class="save-copy">
+          <span id="status" role="status" aria-live="polite">Настройки загружены</span>
+        </div>
+        <button class="save-button" id="save" type="submit" disabled>Сохранить</button>
+      </div>
+    </form>
+  </main>
+
+  <script src="native.js"></script>
   <script src="rules.js"></script>
   <script src="options.js"></script>
 </body>

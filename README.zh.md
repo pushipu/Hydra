@@ -109,7 +109,8 @@ brew install --cask --no-quarantine pushipu/tap/hydra
    `chrome/` 文件夹和 `hydra-firefox.xpi`：
    - **Chrome / Brave / Edge：** `chrome://extensions` → 开发者模式 →
      「加载已解压的扩展程序」→ `chrome/` 文件夹。
-   - **Firefox：** `about:debugging` →「临时载入附加组件」→ `hydra-firefox.xpi`。
+   - **Firefox 140+：** `about:debugging` →「临时载入附加组件」→
+     `hydra-firefox.xpi`。永久安装需要经 AMO 签名的 XPI。
    - **Safari：** 目前需通过 Xcode 手动安装（[docs/SAFARI_SETUP.md](docs/SAFARI_SETUP.md)）。
 3. 完成 —— cookie/会话与多线程立即生效。
 

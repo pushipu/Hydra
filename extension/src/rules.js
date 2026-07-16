@@ -13,22 +13,13 @@
     extensionList: ['zip', 'dmg', 'iso', 'mp4', 'mkv', 'pdf', 'exe', 'tar', 'gz'],
   };
 
-  const HOST = 'com.hydra.host';
   const api = typeof browser !== 'undefined' ? browser : chrome;
   let _cache = null, _cacheAt = 0;
 
-  // Тянет настройки перехвата из приложения через native host.
-  function fetchHostSettings() {
-    return new Promise((resolve) => {
-      try {
-        const ret = api.runtime.sendNativeMessage(HOST, { type: 'getSettings' }, (resp) => {
-          resolve(api.runtime.lastError || !resp || resp.type !== 'settings' ? null : resp);
-        });
-        if (ret && typeof ret.then === 'function') {
-          ret.then((r) => resolve(r && r.type === 'settings' ? r : null)).catch(() => resolve(null));
-        }
-      } catch { resolve(null); }
-    });
+  // Тянет общие настройки перехвата из приложения через native host.
+  async function fetchHostSettings() {
+    const response = await HydraNative.send({ type: 'getSettings' });
+    return response?.type === 'settings' ? response : null;
   }
 
   function mapHost(h) {
@@ -45,26 +36,43 @@
     };
   }
 
-  // app — источник правды; кэш 30с ограничивает спавн host. Нет app → chrome.storage.
+  // Общие параметры берём из app, правила конкретного браузера — из storage.sync.
   async function loadSettings() {
     const now = Date.now();
     if (_cache && now - _cacheAt < 30000) return _cache;
-    const host = await fetchHostSettings();
-    let s;
-    if (host) {
-      s = mapHost(host);
-      try { await api.storage.sync.set({ settings: s }); } catch {}   // офлайн-кэш
-    } else {
-      const stored = await api.storage.sync.get('settings');
-      s = Object.assign({}, DEFAULT_SETTINGS, stored.settings || {});
+    const [stored, host] = await Promise.all([
+      api.storage.sync.get('settings'),
+      fetchHostSettings(),
+    ]);
+    const app = host ? mapHost(host) : null;
+    const next = Object.assign({}, DEFAULT_SETTINGS, stored.settings || app || {});
+    if (app) {
+      next.enabled = app.enabled;
+      next.connections = app.connections;
+      next.minSizeMB = app.minSizeMB;
     }
-    _cache = s; _cacheAt = now;
-    return s;
+    try { await api.storage.sync.set({ settings: next }); } catch {}
+    _cache = next;
+    _cacheAt = now;
+    return next;
   }
 
   async function saveSettings(settings) {
-    await chrome.storage.sync.set({ settings });
+    const next = Object.assign({}, DEFAULT_SETTINGS, settings);
+    await HydraNative.send({
+      type: 'setSettings',
+      autoIntercept: next.enabled,
+      minSizeMB: next.minSizeMB,
+      threadsPerFile: next.connections,
+    });
+    await api.storage.sync.set({ settings: next });
+    _cache = next;
+    _cacheAt = Date.now();
   }
+
+  api.storage.onChanged?.addListener((changes, area) => {
+    if (area === 'sync' && changes.settings) { _cache = null; _cacheAt = 0; }
+  });
 
   function hostOf(url) {
     try { return new URL(url).hostname.toLowerCase(); } catch { return ''; }

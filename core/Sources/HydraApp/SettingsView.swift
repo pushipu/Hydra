@@ -18,7 +18,7 @@ struct SettingsView: View {
             case .intercept:   return "Перехват"
             case .completion:  return "Завершение"
             case .folders:     return "Папки"
-            case .system:      return "Система"
+            case .system:      return "Общие"
             }
         }
         var icon: String {
@@ -78,12 +78,12 @@ struct SettingsView: View {
 
     private var intercept: some View {
         Form {
-            Section(L("Перехват из браузера")) {
+            Section(L("Перехват загрузок")) {
                 Toggle(L("Перехватывать автоматически"), isOn: $s.autoIntercept)
                 stepperRow(L("Минимальный размер файла"), suffix: " \(L("МБ"))", value: $s.minSizeMB, in: 0...4096, step: 5)
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L("Типы файлов"))
-                    TextField("dmg, zip, iso, mp4…", text: $s.fileTypesText)
+                    TextField("dmg, zip, iso", text: $s.fileTypesText)
                         .textFieldStyle(.roundedBorder)
                 }
             }
@@ -121,7 +121,7 @@ struct SettingsView: View {
 
     private var system: some View {
         Form {
-            Section(L("Общие")) {
+            Section {
                 Picker(L("Язык"), selection: $loc.lang) {
                     ForEach(Lang.allCases) { Text($0.nativeName).tag($0) }
                 }

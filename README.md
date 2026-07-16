@@ -116,7 +116,8 @@ lets the app open without Gatekeeper warnings. Then continue from step 2 below.
    extension…"); Finder opens the bundled `chrome/` folder and `hydra-firefox.xpi`:
    - **Chrome / Brave / Edge:** `chrome://extensions` → Developer mode →
      "Load unpacked" → the `chrome/` folder.
-   - **Firefox:** `about:debugging` → "Load Temporary Add-on" → `hydra-firefox.xpi`.
+   - **Firefox 140+:** `about:debugging` → "Load Temporary Add-on" →
+     `hydra-firefox.xpi`. Permanent installation requires an AMO-signed XPI.
    - **Safari:** manual via Xcode for now ([docs/SAFARI_SETUP.md](docs/SAFARI_SETUP.md)).
 3. Done — cookies/session and multithreading work right away.
 

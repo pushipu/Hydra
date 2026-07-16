@@ -2,8 +2,8 @@ import Foundation
 import DownloadCore
 
 /// Native messaging host: браузер запускает бинарь и общается фреймами (4 байта
-/// длины, native byte order + UTF-8 JSON). Входящие type: ping / getDownloads /
-/// getSettings / download. Загрузку делегируем в Hydra.app через /tmp/hydra.sock;
+/// длины, native byte order + UTF-8 JSON). Входящие type: ping / openApp /
+/// getSettings / setSettings / download. Загрузку делегируем в Hydra.app через /tmp/hydra.sock;
 /// если app не запущен — качаем локально.
 @main
 struct Host {
@@ -17,17 +17,21 @@ struct Host {
                 io.send(["type": "status", "connected": Self.sayHello()])
                 continue
             }
-            // Снимок активных/паузных загрузок для попапа (читаем меты с диска —
-            // без записи app→сокет, которая шлёт EPIPE).
-            if type == "getDownloads" {
-                if UserDefaults(suiteName: "com.hydra.downloads")?.bool(forKey: "demoMode") == true {
-                    io.send(["type": "downloads", "items": Self.demoDownloads()])   // моки для скриншота
-                    continue
+            if type == "openApp" {
+                var opened = Self.delegate(["type": "openMain"])
+                if !opened {
+                    let process = Process()
+                    process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
+                    process.arguments = ["-b", "com.hydra.downloads"]
+                    if (try? process.run()) != nil { process.waitUntilExit() }
+                    for _ in 0..<20 where !opened {
+                        try? await Task.sleep(nanoseconds: 100_000_000)
+                        opened = Self.delegate(["type": "openMain"])
+                    }
                 }
-                let items = DownloadStore.shared.loadAll().map { m -> [String: Any] in
-                    ["name": m.filename, "total": m.total, "done": m.completedBytes, "running": m.wasRunning]
-                }
-                io.send(["type": "downloads", "items": items])
+                io.send(opened
+                    ? ["type": "done", "message": "Hydra opened"]
+                    : ["type": "error", "message": "Hydra.app not found"])
                 continue
             }
             // Настройки перехвата — app источник правды, читаем из общего settings.json.
@@ -41,6 +45,27 @@ struct Host {
                          "contextMenu": s.contextMenu])
                 continue
             }
+            // Общие параметры можно менять и из расширения. Пишем и общий JSON,
+            // и defaults приложения; запущенной Hydra отправляем живое обновление.
+            if type == "setSettings" {
+                var s = SharedSettings.load()
+                if let value = message["autoIntercept"] as? Bool { s.autoIntercept = value }
+                if let value = message["minSizeMB"] as? NSNumber {
+                    s.minSizeBytes = Int64(max(0, value.intValue)) * 1_048_576
+                }
+                if let value = message["threadsPerFile"] as? NSNumber {
+                    s.threadsPerFile = min(32, max(1, value.intValue))
+                }
+                SharedSettings.save(s)
+
+                let defaults = UserDefaults(suiteName: "com.hydra.downloads")
+                defaults?.set(s.autoIntercept, forKey: "autoIntercept")
+                defaults?.set(Int(s.minSizeBytes / 1_048_576), forKey: "minSizeMB")
+                defaults?.set(s.threadsPerFile, forKey: "threadsPerFile")
+                _ = Self.delegate(message)
+                io.send(["type": "settingsSaved"])
+                continue
+            }
             guard type == "download" else {
                 io.send(["type": "error", "message": "unknown type"])
                 continue
@@ -52,15 +77,6 @@ struct Host {
                 await Self.downloadLocally(message, io: io)
             }
         }
-    }
-
-    private static func demoDownloads() -> [[String: Any]] {
-        let mb: Int64 = 1_048_576
-        return [
-            ["name": "macOS Sequoia.dmg", "total": 2410 * mb, "done": 1500 * mb, "running": true],
-            ["name": "dataset-2024-full.zip", "total": 4100 * mb, "done": 0, "running": false],
-            ["name": "lecture-07-recording-4k.mp4", "total": 1800 * mb, "done": 738 * mb, "running": false],
-        ]
     }
 
     /// Подключиться к сокету Hydra.app; nil — app не слушает. Дескриптор закрывает вызывающий.

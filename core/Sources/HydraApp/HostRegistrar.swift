@@ -13,7 +13,7 @@ enum HostRegistrar {
     /// extension/manifest.chrome.json. Меняешь ключ — обнови и это значение
     /// (./build-all.sh печатает актуальный id при сборке).
     static let chromeExtensionID = "hfdmeoleepighofjiookfjcjekoopaim"
-    static let firefoxExtensionID = "hydra@local.dev"
+    static let firefoxExtensionID = "hydra@pushipu.github.io"
     static let hostName = "com.hydra.host"
 
     /// Путь к бинарю host. В собранном .app он лежит в Contents/Resources;

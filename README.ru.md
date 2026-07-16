@@ -115,7 +115,8 @@ brew install --cask --no-quarantine pushipu/tap/hydra
    «Установить расширение…»); Finder откроет папку `chrome/` и `hydra-firefox.xpi`:
    - **Chrome / Brave / Edge:** `chrome://extensions` → Режим разработчика →
      «Загрузить распакованное» → папка `chrome/`.
-   - **Firefox:** `about:debugging` → «Загрузить временное дополнение» → `hydra-firefox.xpi`.
+   - **Firefox 140+:** `about:debugging` → «Загрузить временное дополнение» →
+     `hydra-firefox.xpi`. Для постоянной установки XPI должен быть подписан в AMO.
    - **Safari:** пока вручную через Xcode ([docs/SAFARI_SETUP.md](docs/SAFARI_SETUP.md)).
 3. Готово — куки/сессия и многопоток работают сразу.
 
